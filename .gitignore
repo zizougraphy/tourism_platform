@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+
+# Spline binary
+scene.splinecode
+
+# Media files
+*.mp4
+
+# OS
+.DS_Store

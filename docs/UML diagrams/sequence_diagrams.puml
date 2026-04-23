@@ -1,0 +1,516 @@
+@startuml tourism_sequence_diagrams
+
+' ============================================================
+'  Theme: Soft Purples & Violets
+' ============================================================
+skinparam backgroundColor #F7F5FF
+skinparam shadowing false
+skinparam roundcorner 8
+
+skinparam participant {
+  BackgroundColor #EDE9FF
+  BorderColor #7C5CBF
+  FontColor #2E1A47
+  FontSize 13
+  FontStyle bold
+}
+
+skinparam actor {
+  BackgroundColor #EDE9FF
+  BorderColor #7C5CBF
+  FontColor #2E1A47
+  FontSize 12
+  FontStyle bold
+}
+
+skinparam sequence {
+  ArrowColor #7C5CBF
+  ArrowThickness 1.3
+  LifeLineBorderColor #9B7FD4
+  LifeLineBackgroundColor #F3F0FF
+  BoxBackgroundColor #F3F0FF
+  BoxBorderColor #6A3FA6
+  DividerBackgroundColor #EDE9FF
+  DividerBorderColor #7C5CBF
+  GroupBackgroundColor #F7F5FF
+  GroupBorderColor #7C5CBF
+  GroupHeaderFontColor #6A3FA6
+  GroupFontColor #2E1A47
+  NoteBackgroundColor #EDE9FF
+  NoteBorderColor #7C5CBF
+  NoteFontColor #2E1A47
+}
+
+skinparam activationBorderColor #6A3FA6
+skinparam activationBackgroundColor #D5CCFF
+
+' ╔══════════════════════════════════════════════════════════╗
+' ║  DIAGRAM 1 — Tourist Login                               ║
+' ╚══════════════════════════════════════════════════════════╝
+
+title Diagram 1 — Tourist Login
+
+actor       "Tourist"     as T
+participant "Frontend"    as FE
+participant "Backend"     as BE
+participant "Database"    as DB
+
+T  -> FE  : enter email & password
+activate FE
+
+FE -> BE  : POST /auth/login { email, password }
+activate BE
+
+BE -> DB  : SELECT user WHERE email = ?
+activate DB
+DB --> BE : user record
+deactivate DB
+
+alt [user not found]
+  BE --> FE : 404 — user not found
+  FE --> T  : show "account does not exist"
+
+else [password incorrect]
+  BE --> FE : 401 — invalid credentials
+  FE --> T  : show "wrong password"
+
+else [account inactive]
+  BE --> FE : 403 — account suspended
+  FE --> T  : show "account suspended"
+
+else [credentials valid]
+  BE -> BE  : generate JWT token
+  BE --> FE : 200 — { token, user: { id, name, role } }
+  FE -> FE  : store token in localStorage
+  FE --> T  : redirect to home dashboard
+end
+
+deactivate BE
+deactivate FE
+
+' ══════════════════════════════════════════════════════════
+newpage
+' ══════════════════════════════════════════════════════════
+
+' ╔══════════════════════════════════════════════════════════╗
+' ║  DIAGRAM 2 — Tourist Registration                        ║
+' ╚══════════════════════════════════════════════════════════╝
+
+title Diagram 2 — Tourist Registration
+
+actor       "Tourist"     as T
+participant "Frontend"    as FE
+participant "Backend"     as BE
+participant "Database"    as DB
+
+T  -> FE  : fill registration form\n(name, email, password, phone)
+activate FE
+
+FE -> FE  : validate form fields
+
+alt [form has errors]
+  FE --> T : show validation errors
+else [form is valid]
+
+  FE -> BE  : POST /auth/register { name, email, password, phone }
+  activate BE
+
+  BE -> DB  : SELECT user WHERE email = ?
+  activate DB
+  DB --> BE : result
+  deactivate DB
+
+  alt [email already exists]
+    BE --> FE : 409 — email already taken
+    FE --> T  : show "email already in use"
+
+  else [email is free]
+    BE -> BE  : hash password
+    BE -> DB  : INSERT new User { role: TOURIST }
+    activate DB
+    DB --> BE : userId
+    deactivate DB
+
+    BE --> FE : 201 — { token, user: { id, name, role } }
+    FE -> FE  : store token
+    FE --> T  : redirect to home dashboard
+  end
+
+  deactivate BE
+end
+
+deactivate FE
+
+' ══════════════════════════════════════════════════════════
+newpage
+' ══════════════════════════════════════════════════════════
+
+' ╔══════════════════════════════════════════════════════════╗
+' ║  DIAGRAM 3 — Search City & Filter Services               ║
+' ╚══════════════════════════════════════════════════════════╝
+
+title Diagram 3 — Search City & Filter Services
+
+actor       "Tourist"     as T
+participant "Frontend"    as FE
+participant "Backend"     as BE
+participant "Database"    as DB
+
+' ── Phase 1: Tourist types city name ────────────────────
+
+T  -> FE  : type city name in search bar\n(e.g. "Algiers")
+activate FE
+
+FE -> BE  : GET /cities?name=Algiers
+activate BE
+
+BE -> DB  : SELECT city WHERE name LIKE 'Algiers'
+activate DB
+DB --> BE : city record { id, name, country, description }
+deactivate DB
+
+alt [city not found]
+  BE --> FE : 404 — city not found
+  FE --> T  : show "no city matches your search"
+
+else [city found]
+  BE --> FE : 200 — { city }
+  FE --> T  : display city info page\n(name, description, weather)
+
+  ' ── Phase 2: Load all services of that city ───────────
+
+  FE -> BE  : GET /services?cityId=1
+  activate BE
+
+  BE -> DB  : SELECT services WHERE cityId = 1
+  activate DB
+  DB --> BE : all services in city
+  deactivate DB
+
+  BE --> FE : 200 — { services[] }
+  FE --> T  : display all services\nas a list with category buttons:\n[All] [Hotel] [Restaurant] [Tour] [Activity] ...
+  deactivate BE
+
+  ' ── Phase 3: Tourist clicks a category button ─────────
+
+  opt [tourist clicks a category button]
+    T  -> FE  : click category button\n(e.g. "Hotel")
+    FE -> BE  : GET /services?cityId=1&category=Hotel
+    activate BE
+
+    BE -> DB  : SELECT services WHERE cityId = 1\nAND category = 'Hotel'
+    activate DB
+    DB --> BE : filtered services
+    deactivate DB
+
+    BE --> FE : 200 — { services[] }
+    FE --> T  : update list — show only Hotels
+    deactivate BE
+  end
+
+  ' ── Phase 4: Tourist applies extra filters ────────────
+
+  opt [tourist applies extra filters]
+    T  -> FE  : set price range and/or rating\n(e.g. max 5000 DZD, rating >= 4)
+    FE -> BE  : GET /services?cityId=1&category=Hotel\n&maxPrice=5000&rating=4
+    activate BE
+
+    BE -> DB  : SELECT services WHERE cityId = 1\nAND category = 'Hotel'\nAND price <= 5000\nAND rating >= 4
+    activate DB
+    DB --> BE : filtered services
+    deactivate DB
+
+    BE --> FE : 200 — { services[] }
+    FE --> T  : update list with refined results
+    deactivate BE
+  end
+
+  ' ── Phase 5: Tourist clicks a specific service ────────
+
+  opt [tourist clicks on a service]
+    T  -> FE  : click on a service card
+    FE -> BE  : GET /services/:id
+    activate BE
+
+    BE -> DB  : SELECT service + reviews + availability
+    activate DB
+    DB --> BE : service full details
+    deactivate DB
+
+    BE --> FE : 200 — { service, reviews[], availability[] }
+    FE --> T  : display service detail page
+    deactivate BE
+  end
+
+end
+
+deactivate FE
+
+' ══════════════════════════════════════════════════════════
+newpage
+' ══════════════════════════════════════════════════════════
+
+' ╔══════════════════════════════════════════════════════════╗
+' ║  DIAGRAM 4 — Make a Reservation                          ║
+' ╚══════════════════════════════════════════════════════════╝
+
+title Diagram 4 — Make a Reservation
+
+actor       "Tourist"        as T
+participant "Frontend"       as FE
+participant "Backend"        as BE
+participant "Database"       as DB
+participant "Notification\nService" as NS
+
+T  -> FE  : select check-in & check-out dates\nthen click "Book Now"
+activate FE
+
+FE -> BE  : POST /bookings\n{ serviceId, checkIn, checkOut, token }
+activate BE
+
+BE -> BE  : verify JWT token
+
+alt [token invalid / expired]
+  BE --> FE : 401 — unauthorized
+  FE --> T  : redirect to login page
+
+else [token valid]
+
+  BE -> DB  : SELECT availability WHERE serviceId AND date range
+  activate DB
+  DB --> BE : availability slots
+  deactivate DB
+
+  alt [no slots available]
+    BE --> FE : 409 — service not available for selected dates
+    FE --> T  : show "no availability for these dates"
+
+  else [slots available]
+    BE -> DB  : INSERT Booking { status: PENDING }
+    activate DB
+    DB --> BE : bookingId
+    deactivate DB
+
+    BE -> DB  : UPDATE Availability\nSET bookedSlots = bookedSlots + 1
+    activate DB
+    DB --> BE : ok
+    deactivate DB
+
+    BE -> NS  : sendNotification(touristId,\n"Booking confirmed — #bookingId")
+    activate NS
+    NS -> DB  : INSERT Notification { userId: tourist }
+    activate DB
+    DB --> NS : ok
+    deactivate DB
+    NS --> BE : ok
+    deactivate NS
+
+    BE -> NS  : sendNotification(providerId,\n"New booking received")
+    activate NS
+    NS -> DB  : INSERT Notification { userId: provider }
+    activate DB
+    DB --> NS : ok
+    deactivate DB
+    NS --> BE : ok
+    deactivate NS
+
+    BE --> FE : 201 — { booking: { id, status, totalPrice } }
+    FE --> T  : show booking confirmation page
+  end
+
+end
+
+deactivate BE
+deactivate FE
+
+' ══════════════════════════════════════════════════════════
+newpage
+' ══════════════════════════════════════════════════════════
+
+' ╔══════════════════════════════════════════════════════════╗
+' ║  DIAGRAM 5 — Leave a Review                              ║
+' ╚══════════════════════════════════════════════════════════╝
+
+title Diagram 5 — Leave a Review
+
+actor       "Tourist"     as T
+participant "Frontend"    as FE
+participant "Backend"     as BE
+participant "Database"    as DB
+
+T  -> FE  : click "Write a Review"\non completed booking
+activate FE
+
+FE -> BE  : GET /bookings/:id/can-review\n{ token }
+activate BE
+
+BE -> DB  : SELECT booking WHERE id AND touristId\nAND status = COMPLETED
+activate DB
+DB --> BE : booking record
+deactivate DB
+
+alt [booking not found or not completed]
+  BE --> FE : 403 — review not allowed
+  FE --> T  : show "you can only review\nservices you have completed"
+
+else [booking exists and is completed]
+  BE -> DB  : SELECT review WHERE bookingId
+  activate DB
+  DB --> BE : existing review or null
+  deactivate DB
+
+  alt [review already submitted]
+    BE --> FE : 409 — already reviewed
+    FE --> T  : show "you already reviewed this service"
+
+  else [no review yet]
+    BE --> FE : 200 — review form allowed
+    FE --> T  : display review form\n(rating 1–5, comment)
+
+    T  -> FE  : submit rating & comment
+    FE -> BE  : POST /reviews\n{ serviceId, bookingId, rating, comment, token }
+    activate BE
+
+    BE -> DB  : INSERT Review { rating, comment, date }
+    activate DB
+    DB --> BE : reviewId
+    deactivate DB
+
+    BE -> DB  : UPDATE Service\nSET rating = AVG(all ratings)
+    activate DB
+    DB --> BE : ok
+    deactivate DB
+
+    BE --> FE : 201 — review saved
+    FE --> T  : show "thank you for your review!"
+    deactivate BE
+  end
+
+end
+
+deactivate BE
+deactivate FE
+
+' ══════════════════════════════════════════════════════════
+newpage
+' ══════════════════════════════════════════════════════════
+
+' ╔══════════════════════════════════════════════════════════╗
+' ║  DIAGRAM 6 — Provider Registration + Admin Approval      ║
+' ╚══════════════════════════════════════════════════════════╝
+
+title Diagram 6 — Provider Registration & Admin Approval
+
+actor       "Provider"    as P
+actor       "Admin"       as A
+participant "Frontend"    as FE
+participant "Backend"     as BE
+participant "Database"    as DB
+participant "Notification\nService" as NS
+
+P  -> FE  : fill provider registration form\n(name, email, password,\nbusiness name, phone)
+activate FE
+
+FE -> BE  : POST /auth/register\n{ ...fields, role: SERVICE_PROVIDER }
+activate BE
+
+BE -> DB  : SELECT user WHERE email = ?
+activate DB
+DB --> BE : result
+deactivate DB
+
+alt [email already taken]
+  BE --> FE : 409 — email already in use
+  FE --> P  : show error message
+
+else [email free]
+  BE -> DB  : INSERT User { role: SERVICE_PROVIDER,\nisActive: false }
+  activate DB
+  DB --> BE : userId
+  deactivate DB
+
+  BE -> NS  : notify all admins\n"New provider awaiting approval"
+  activate NS
+  NS -> DB  : INSERT Notification { userId: adminId }
+  activate DB
+  DB --> NS : ok
+  deactivate DB
+  NS --> BE : ok
+  deactivate NS
+
+  BE --> FE : 201 — registration received,\npending admin approval
+  FE --> P  : show "your account is under review"
+end
+
+deactivate BE
+deactivate FE
+
+note over A : Admin reviews pending\nprovider accounts\nin the dashboard
+
+A  -> FE  : open pending providers list
+activate FE
+
+FE -> BE  : GET /admin/providers?status=pending\n{ adminToken }
+activate BE
+
+BE -> DB  : SELECT users WHERE role = SERVICE_PROVIDER\nAND isActive = false
+activate DB
+DB --> BE : list of pending providers
+deactivate DB
+
+BE --> FE : 200 — { providers[] }
+FE --> A  : display providers list
+
+A  -> FE  : click Approve or Reject on a provider
+activate FE
+
+alt [Admin approves]
+  FE -> BE  : PATCH /admin/providers/:id/approve\n{ adminToken }
+  activate BE
+
+  BE -> DB  : UPDATE User SET isActive = true
+  activate DB
+  DB --> BE : ok
+  deactivate DB
+
+  BE -> NS  : notify provider\n"Your account has been approved"
+  activate NS
+  NS -> DB  : INSERT Notification { userId: providerId }
+  activate DB
+  DB --> NS : ok
+  deactivate DB
+  NS --> BE : ok
+  deactivate NS
+
+  BE --> FE : 200 — provider approved
+  FE --> A  : update list
+
+  note over P : Provider receives\nnotification and\ncan now log in
+
+else [Admin rejects]
+  FE -> BE  : PATCH /admin/providers/:id/reject\n{ adminToken }
+  activate BE
+
+  BE -> DB  : DELETE User WHERE id = providerId
+  activate DB
+  DB --> BE : ok
+  deactivate DB
+
+  BE -> NS  : notify provider\n"Your registration was rejected"
+  activate NS
+  NS -> DB  : INSERT Notification { userId: providerId }
+  activate DB
+  DB --> NS : ok
+  deactivate DB
+  NS --> BE : ok
+  deactivate NS
+
+  BE --> FE : 200 — provider rejected
+  FE --> A  : update list
+  deactivate BE
+end
+
+deactivate BE
+deactivate FE
+
+@enduml

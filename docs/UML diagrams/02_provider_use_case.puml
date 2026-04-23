@@ -1,0 +1,93 @@
+@startuml provider_use_case
+
+skinparam backgroundColor #F7F5FF
+skinparam shadowing false
+skinparam roundcorner 10
+
+skinparam actor {
+  BackgroundColor #EDE9FF
+  BorderColor     #7C5CBF
+  FontColor       #2E1A47
+  FontSize        12
+  FontStyle       bold
+}
+
+skinparam usecase {
+  BackgroundColor #EDE9FF
+  BorderColor     #7C5CBF
+  FontColor       #2E1A47
+  FontSize        10
+  ArrowColor      #7C5CBF
+}
+
+skinparam rectangle {
+  BackgroundColor #F3F0FF
+  BorderColor     #6A3FA6
+  BorderThickness 2
+  FontColor       #6A3FA6
+  FontStyle       bold
+  FontSize        12
+}
+
+skinparam ArrowColor     #7C5CBF
+skinparam ArrowThickness 1.2
+
+left to right direction
+
+actor "Service Provider" as P
+
+rectangle "Tourism Service Platform — Service Provider Module" {
+
+  rectangle "Account Setup" {
+    (Register Provider Account)   as UC_PReg
+    (Create Professional Profile) as UC_Profile
+  }
+
+  rectangle "Service Management" {
+    (Add Service)          as UC_AddSvc
+    (Update Service)       as UC_UpdSvc
+    (Delete Service)       as UC_DelSvc
+    (Manage Availability)  as UC_Avail
+  }
+
+  rectangle "Bookings & Communication" {
+    (Manage Booking Requests)  as UC_BookReq
+    (Communicate with Tourist) as UC_PMsg
+  }
+
+  rectangle "Promotions" {
+    (Promote Offers) as UC_Promo
+    (Set Discount)   as UC_Disc
+  }
+
+}
+
+' ── Actor connections ───────────────────────────────────
+P --> UC_PReg
+P --> UC_Profile
+P --> UC_AddSvc
+P --> UC_UpdSvc
+P --> UC_DelSvc
+P --> UC_Avail
+P --> UC_BookReq
+P --> UC_PMsg
+P --> UC_Promo
+
+' ── Account Setup include ───────────────────────────────
+UC_Profile  .> UC_PReg    : <<include>>
+
+' ── Service Management include ──────────────────────────
+UC_AddSvc   .> UC_Profile : <<include>>
+UC_UpdSvc   .> UC_AddSvc  : <<include>>
+UC_DelSvc   .> UC_AddSvc  : <<include>>
+UC_Avail    .> UC_AddSvc  : <<include>>
+
+' ── Bookings & Communication include ────────────────────
+UC_BookReq  .> UC_PReg    : <<include>>
+UC_PMsg     .> UC_PReg    : <<include>>
+
+' ── Promotions extend ───────────────────────────────────
+UC_Promo    .> UC_AddSvc  : <<extend>>
+UC_Disc     .> UC_Promo   : <<extend>>
+
+@enduml

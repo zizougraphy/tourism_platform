@@ -1,0 +1,99 @@
+classDiagram
+    direction TB
+
+    class User {
+        +int id
+        +string name
+        +string email
+        +string password
+        +string phone
+        +string role
+        +register()
+        +login()
+        +logout()
+    }
+
+    class Tourist {
+        +browseCities()
+        +applyFilters()
+        +saveFavorite()
+        +makeReservation()
+        +leaveReview()
+    }
+
+    class ServiceProvider {
+        +createProfile()
+        +addService()
+        +updateService()
+        +deleteService()
+        +manageAvailability()
+        +promoteOffers()
+    }
+
+    class Admin {
+        +manageUsers()
+        +approveProvider()
+        +monitorPlatform()
+        +manageReview()
+    }
+
+    class City {
+        +int id
+        +string name
+        +string description
+        +string weather
+    }
+
+    class Service {
+        +int id
+        +string name
+        +string category
+        +float price
+        +float rating
+        +string description
+    }
+
+    class Booking {
+        +int id
+        +date date
+        +string status
+        +confirmBooking()
+        +cancelBooking()
+    }
+
+    class Review {
+        +int id
+        +int rating
+        +string comment
+        +date date
+    }
+
+    class Message {
+        +int id
+        +string content
+        +datetime timestamp
+    }
+
+    class Favorite {
+        +int id
+        +date dateSaved
+    }
+
+    User <|-- Tourist
+    User <|-- ServiceProvider
+    User <|-- Admin
+
+    City "1" --> "many" Service : contains
+    ServiceProvider "1" --> "many" Service : manages
+
+    Tourist "1" --> "many" Booking
+    Service "1" --> "many" Booking
+
+    Tourist "1" --> "many" Review
+    Service "1" --> "many" Review
+
+    Tourist "1" --> "many" Favorite
+    Service "1" --> "many" Favorite
+
+    Tourist "1" --> "many" Message
+    ServiceProvider "1" --> "many" Message

@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&display=swap');
+
+/* ── CSS Reset & Global Tokens ── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Primary palette */
+  --primary: #00236f;
+  --primary-container: #1e3a8a;
+  --on-primary: #ffffff;
+  --primary-light: #b6c4ff;
+
+  /* Secondary / accent */
+  --secondary: #006c49;
+  --secondary-container: #6cf8bb;
+
+  /* Surface & background */
+  --surface: #f8f9fa;
+  --surface-container: #edeeef;
+  --surface-container-low: #f3f4f5;
+  --surface-container-high: #e7e8e9;
+  --surface-bright: #ffffff;
+
+  /* Text */
+  --on-surface: #191c1d;
+  --on-surface-variant: #444651;
+  --outline: #757682;
+  --outline-variant: #c5c5d3;
+
+  /* Error */
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+
+  /* Misc */
+  --shadow-editorial: 0 30px 60px -12px rgba(25, 28, 29, 0.08);
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --radius-2xl: 2.5rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--surface);
+  color: var(--on-surface);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Manrope', system-ui, sans-serif;
+  line-height: 1.2;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Loading spinner for ProtectedRoute ── */
+.route-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  font-size: 1.1rem;
+  color: var(--outline);
+  font-weight: 500;
+}

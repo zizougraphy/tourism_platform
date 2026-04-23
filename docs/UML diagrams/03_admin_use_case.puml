@@ -1,0 +1,78 @@
+@startuml admin_use_case
+
+skinparam backgroundColor #F7F5FF
+skinparam shadowing false
+skinparam roundcorner 10
+
+skinparam actor {
+  BackgroundColor #EDE9FF
+  BorderColor     #7C5CBF
+  FontColor       #2E1A47
+  FontSize        12
+  FontStyle       bold
+}
+
+skinparam usecase {
+  BackgroundColor #EDE9FF
+  BorderColor     #7C5CBF
+  FontColor       #2E1A47
+  FontSize        10
+  ArrowColor      #7C5CBF
+}
+
+skinparam rectangle {
+  BackgroundColor #F3F0FF
+  BorderColor     #6A3FA6
+  BorderThickness 2
+  FontColor       #6A3FA6
+  FontStyle       bold
+  FontSize        12
+}
+
+skinparam ArrowColor     #7C5CBF
+skinparam ArrowThickness 1.2
+
+left to right direction
+
+actor Administrator as A
+
+rectangle "Tourism Service Platform — Admin Module" {
+
+  rectangle "User Management" {
+    (Manage User Accounts) as UC_Users
+    (Approve Providers)    as UC_Approve
+  }
+
+  rectangle "Platform Monitoring" {
+    (Monitor Platform Activity) as UC_Monitor
+    (View Analytics)            as UC_Analytics
+  }
+
+  rectangle "Content Moderation" {
+    (Manage Reviews)              as UC_MngRev
+    (Remove Inappropriate Review) as UC_RmRev
+  }
+
+  rectangle "Security" {
+    (Maintain System Security) as UC_Sec
+  }
+
+}
+
+' ── Actor connections ───────────────────────────────────
+A --> UC_Users
+A --> UC_Approve
+A --> UC_Monitor
+A --> UC_MngRev
+A --> UC_Sec
+
+' ── User Management include ─────────────────────────────
+UC_Approve   .> UC_Users   : <<include>>
+
+' ── Platform Monitoring extend ──────────────────────────
+UC_Analytics .> UC_Monitor : <<extend>>
+
+' ── Content Moderation extend ───────────────────────────
+UC_RmRev     .> UC_MngRev  : <<extend>>
+
+@enduml

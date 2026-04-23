@@ -1,0 +1,93 @@
+@startuml tourist_use_case
+
+skinparam backgroundColor #F7F5FF
+skinparam shadowing false
+skinparam roundcorner 10
+
+skinparam actor {
+  BackgroundColor #EDE9FF
+  BorderColor     #7C5CBF
+  FontColor       #2E1A47
+  FontSize        12
+  FontStyle       bold
+}
+
+skinparam usecase {
+  BackgroundColor #EDE9FF
+  BorderColor     #7C5CBF
+  FontColor       #2E1A47
+  FontSize        10
+  ArrowColor      #7C5CBF
+}
+
+skinparam rectangle {
+  BackgroundColor #F3F0FF
+  BorderColor     #6A3FA6
+  BorderThickness 2
+  FontColor       #6A3FA6
+  FontStyle       bold
+  FontSize        12
+}
+
+skinparam ArrowColor     #7C5CBF
+skinparam ArrowThickness 1.2
+
+left to right direction
+
+actor Tourist as T
+
+rectangle "Tourism Service Platform — Tourist Module" {
+
+  rectangle "Authentication" {
+    (Tourist Register)      as UC_Reg
+    (Tourist Login)         as UC_Login
+    (Authenticate User)     as UC_Auth
+  }
+
+  rectangle "Exploration" {
+    (Browse Cities)         as UC_Browse
+    (View City Information) as UC_CityInfo
+    (Search Services)       as UC_Search
+    (Apply Filters)         as UC_Filters
+    (View Service Details)  as UC_Details
+    (View Reviews)          as UC_ViewRev
+  }
+
+  rectangle "Actions" {
+    (Save Favorites)           as UC_Fav
+    (Make Reservation)         as UC_Reserve
+    (Leave Review)             as UC_Review
+    (Message Service Provider) as UC_Msg
+  }
+
+}
+
+' ── Actor connections ───────────────────────────────────
+T --> UC_Reg
+T --> UC_Login
+T --> UC_Browse
+T --> UC_CityInfo
+T --> UC_Search
+T --> UC_Details
+T --> UC_Reserve
+T --> UC_Review
+T --> UC_Msg
+
+' ── Authentication ──────────────────────────────────────
+UC_Login    .> UC_Auth     : <<include>>
+
+' ── Exploration include / extend ────────────────────────
+UC_Browse   .> UC_Login    : <<include>>
+UC_CityInfo .> UC_Login    : <<include>>
+UC_Search   .> UC_Login    : <<include>>
+UC_Details  .> UC_Login    : <<include>>
+UC_Filters  .> UC_Search   : <<extend>>
+UC_ViewRev  .> UC_Details  : <<extend>>
+
+' ── Actions include / extend ────────────────────────────
+UC_Reserve  .> UC_Login    : <<include>>
+UC_Msg      .> UC_Login    : <<include>>
+UC_Fav      .> UC_Details  : <<extend>>
+UC_Review   .> UC_Reserve  : <<include>>
+
+@enduml

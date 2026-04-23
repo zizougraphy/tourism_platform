@@ -1,0 +1,433 @@
+/* ──────────────────────────────────────────
+   Home Hero Section — The Horizon
+   ────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: calc(100vh - 56px);
+  overflow: hidden;
+  background: linear-gradient(145deg, #0a0e1a 0%, #111827 40%, #0f172a 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Background Image ── */
+.backgroundImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ── Ambient background glows ── */
+.ambientGlow {
+  position: absolute;
+  top: -15%;
+  left: -10%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  animation: pulseGlow 8s ease-in-out infinite alternate;
+}
+
+.ambientGlow2 {
+  position: absolute;
+  bottom: -20%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.1) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  animation: pulseGlow 10s 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* ── Hero inner layout ── */
+.heroInner {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 3rem 4rem;
+  gap: 2rem;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  pointer-events: none;
+  /* Let events pass through to Spline */
+}
+
+/* ── Text column ── */
+.textCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 650px;
+  animation: slideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: auto;
+  /* Re-enable events for buttons and text */
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Overline badge ── */
+.overline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.5);
+  animation: slideUp 0.9s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #38bdf8;
+  display: inline-block;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ── Title ── */
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  animation: slideUp 0.9s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.titleLine {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(2.8rem, 5vw, 4.5rem);
+  font-weight: 800;
+  color: #e2e8f0;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.titleAccent {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(3rem, 5.5vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Subtitle ── */
+.subtitle {
+  max-width: 480px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  animation: slideUp 0.9s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── CTAs ── */
+.ctas {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  animation: slideUp 0.9s 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1.8rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  box-shadow:
+    0 4px 16px rgba(56, 189, 248, 0.3),
+    0 0 0 0 rgba(56, 189, 248, 0);
+  transition: transform 0.2s, box-shadow 0.25s;
+}
+
+.ctaPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 28px rgba(56, 189, 248, 0.35),
+    0 0 0 4px rgba(56, 189, 248, 0.08);
+}
+
+.ctaPrimary:active {
+  transform: scale(0.97);
+}
+
+.ctaPrimary svg {
+  transition: transform 0.2s;
+}
+
+.ctaPrimary:hover svg {
+  transform: translateX(3px);
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 1.8rem;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  transition: border-color 0.25s, color 0.25s, background 0.25s;
+}
+
+.ctaSecondary:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #e2e8f0;
+  background: rgba(56, 189, 248, 0.06);
+}
+
+/* ── Stats row ── */
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  animation: slideUp 0.9s 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.statValue {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #e2e8f0;
+  letter-spacing: -0.02em;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.statDivider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Spline Background ── */
+.splineBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.splineWrapper {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.splineWrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+.splineVisible {
+  opacity: 1;
+}
+
+/* ── Spline loader ── */
+.splineLoader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  z-index: 5;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.spinnerRing {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: #38bdf8;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Scroll indicator ── */
+.scrollIndicator {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 2rem;
+  animation: slideUp 0.9s 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.scrollDot {
+  width: 24px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  position: relative;
+}
+
+.scrollDot::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 4px;
+  height: 8px;
+  margin-left: -2px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+@keyframes scrollBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(10px);
+    opacity: 0.3;
+  }
+}
+
+/* ────────────────────────────────────
+   Responsive
+   ──────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .heroInner {
+    flex-direction: column;
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+
+  .textCol {
+    align-items: center;
+  }
+
+  .subtitle {
+    margin: 0 auto;
+  }
+
+  .ctas {
+    justify-content: center;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .heroInner {
+    padding: 2rem 1.25rem;
+    gap: 1.5rem;
+  }
+
+  .ctas {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stats {
+    gap: 1rem;
+  }
+
+  .statValue {
+    font-size: 1.25rem;
+  }
+}

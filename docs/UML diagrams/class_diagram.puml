@@ -1,0 +1,255 @@
+@startuml travel_web_application
+
+' ============================================================
+'  Theme: Soft Purples & Violets
+' ============================================================
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #F7F5FF
+
+skinparam class {
+  BackgroundColor #EDE9FF
+  BorderColor #7C5CBF
+  ArrowColor #7C5CBF
+  HeaderBackgroundColor #6A3FA6
+  HeaderFontColor #FFFFFF
+  FontColor #2E1A47
+  FontSize 25
+  AttributeFontColor #3D2466
+  AttributeFontSize 15
+  StereotypeFontColor #9B7FD4
+}
+
+skinparam classArrowThickness 1.5
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam linetype ortho
+
+' ── spacing between classes ─────────────────────────────
+skinparam nodesep 90
+skinparam ranksep 70
+
+' ============================================================
+'  ENUMERATION
+' ============================================================
+
+enum Role {
+  TOURIST
+  SERVICE_PROVIDER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+' ============================================================
+'  CORE USER CLASSES
+' ============================================================
+
+class User {
+  +id: int
+  +name: string
+  +email: string
+  +password: string
+  +phone: string
+  +role: Role 
+  +profilePhoto: string
+  +created_at: datetime
+  +isActive: boolean
+  --
+  +register()
+  +login()
+  +logout()
+  +resetPassword()
+}
+
+class Tourist {
+  --
+  +browseCities()
+  +applyFilters()
+  +saveFavorite()
+  +makeReservation()
+  +leaveReview()
+}
+
+class ServiceProvider {
+  --
+  +createProfile()
+  +addService()
+  +updateService()
+  +deleteService()
+  +manageAvailability()
+  +promoteOffers()
+}
+
+class Admin {
+  --
+  +manageUsers()
+  +approveProvider()
+  +monitorPlatform()
+  +manageReview()
+}
+
+' ============================================================
+'  LOCATION
+' ============================================================
+
+class City {
+  +id: int
+  +name: string
+  +country: string
+  +description: string
+  +weather: string
+  +images: string[]
+  +latitude: float
+  +longitude: float
+}
+
+' ============================================================
+'  SERVICE & AVAILABILITY
+' ============================================================
+
+class Service {
+  +id: int
+  +name: string
+  +category: string
+  +location: string
+  +images: string[]
+  +price: float
+  +rating: float
+  +description: string
+  +isAvailable: boolean
+  +createdAt: datetime
+}
+
+class Availability {
+  +id: int
+  +date: date
+  +totalSlots: int
+  +bookedSlots: int
+  --
+  +isAvailable(): boolean
+  +remainingSlots(): int
+}
+
+' ============================================================
+'  BOOKING
+' ============================================================
+
+class Booking {
+  +id: int
+  +checkInDate: date
+  +checkOutDate: date
+  +status: BookingStatus
+  +totalPrice: float
+  +createdAt: datetime
+  --
+  +confirmBooking()
+  +cancelBooking()
+}
+
+' ============================================================
+'  REVIEW & FAVORITE
+' ============================================================
+
+class Review {
+  +id: int
+  +rating: int
+  +comment: string
+  +date: date
+}
+
+class Favorite {
+  +id: int
+  +dateSaved: date
+}
+
+' ============================================================
+'  MESSAGING
+' ============================================================
+
+class Message {
+  +id: int
+  +content: string
+  +send_at: datetime
+  +is_read: boolean
+  --
+  +markAsRead()
+}
+
+' ============================================================
+'  PROMOTION
+' ============================================================
+
+class Promotion {
+  +id: int
+  +title: string
+  +discountPercent: float
+  +startDate: date
+  +endDate: date
+  --
+  +isActive(): boolean
+}
+
+' ============================================================
+'  NOTIFICATION
+' ============================================================
+
+class Notification {
+  +id: int
+  +type: string
+  +message: string
+  +isRead: boolean
+  +createdAt: datetime
+}
+
+' ============================================================
+'  INHERITANCE
+' ============================================================
+
+User <|-- Tourist
+User <|-- ServiceProvider
+User <|-- Admin
+
+' ============================================================
+'  ASSOCIATIONS
+' ============================================================
+
+' City & Service
+City "1" -- "many" Service : contains
+
+' ServiceProvider & Service
+ServiceProvider "1" -- "many" Service : manages
+
+' Service & Availability
+Service "1" -- "many" Availability : has
+
+' Service & Promotion
+Service "1" -- "many" Promotion : offers
+
+' Tourist & Booking
+Tourist "1" -- "many" Booking : makes
+Service "1" -- "many" Booking : subject of
+
+' Tourist & Review
+Tourist "1" -- "many" Review : writes
+Service "1" -- "many" Review : receives
+
+' Tourist & Favorite
+Tourist "1" -- "many" Favorite : saves
+Service "1" -- "many" Favorite : saved in
+
+' Messaging (named associations replacing sender_id / receiver_id)
+User "1" -- "many" Message : sends
+User "1" -- "many" Message : receives
+
+' Notifications
+User "1" -- "many" Notification : receives
+
+' Enum usage
+User -- Role
+
+@enduml
