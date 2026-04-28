@@ -4,18 +4,18 @@ const { asyncHandler } = require('../middleware/error.middleware');
 // ─── POST /api/bookings ───────────────────────────────────────────────────────
 // Tourist creates a booking. Status starts as 'pending'.
 const createBooking = asyncHandler(async (req, res) => {
-  const { service_id, booking_date, notes } = req.body;
-  const user_id = req.user.id;
+  const { service_id, check_in_date, check_out_date, guests } = req.body;
+  const tourist_id = req.user.id;
 
   // Validate required fields
-  if (!service_id || !booking_date) {
+  if (!service_id || !check_in_date || !check_out_date) {
     res.status(400);
-    throw new Error('service_id and booking_date are required');
+    throw new Error('service_id, check_in_date and check_out_date are required');
   }
 
   // Make sure the service exists and is active
   const [service] = await db.query(
-    'SELECT id, price FROM services WHERE id = ? AND is_active = 1',
+    'SELECT id, price FROM services WHERE id = ? AND is_available = 1',
     [service_id]
   );
 
@@ -25,9 +25,9 @@ const createBooking = asyncHandler(async (req, res) => {
   }
 
   const [result] = await db.query(
-    `INSERT INTO bookings (user_id, service_id, booking_date, notes, status, total_price)
-     VALUES (?, ?, ?, ?, 'pending', ?)`,
-    [user_id, service_id, booking_date, notes || null, service[0].price]
+    `INSERT INTO bookings (tourist_id, service_id, check_in_date, check_out_date, status, total_price, guests)
+     VALUES (?, ?, ?, ?, 'pending', ?, ?)`,
+    [tourist_id, service_id, check_in_date, check_out_date, service[0].price, guests || 1]
   );
 
   // Fetch the newly created booking to return it in the response
@@ -40,10 +40,6 @@ const createBooking = asyncHandler(async (req, res) => {
 });
 
 // ─── GET /api/bookings ────────────────────────────────────────────────────────
-// Returns bookings relevant to the current user:
-//   - tourist  → their own bookings
-//   - provider → bookings for their services
-//   - admin    → all bookings
 const getBookings = asyncHandler(async (req, res) => {
   const { id: user_id, role } = req.user;
 
@@ -54,30 +50,28 @@ const getBookings = asyncHandler(async (req, res) => {
       `SELECT b.*, s.name AS service_name, u.name AS tourist_name
        FROM bookings b
        LEFT JOIN services s ON s.id = b.service_id
-       LEFT JOIN users    u ON u.id = b.user_id
+       LEFT JOIN users    u ON u.id = b.tourist_id
        ORDER BY b.created_at DESC`
     );
 
-  } else if (role === 'provider') {
-    // Get bookings only for services owned by this provider
+  } else if (role === 'service_provider') {
     [rows] = await db.query(
       `SELECT b.*, s.name AS service_name, u.name AS tourist_name
        FROM bookings b
-       LEFT JOIN services  s  ON s.id  = b.service_id
-       LEFT JOIN providers p  ON p.id  = s.provider_id
-       LEFT JOIN users     u  ON u.id  = b.user_id
-       WHERE p.user_id = ?
+       LEFT JOIN services s ON s.id = b.service_id
+       LEFT JOIN users    u ON u.id = b.tourist_id
+       WHERE s.provider_id = ?
        ORDER BY b.created_at DESC`,
       [user_id]
     );
 
   } else {
-    // Tourist — only their own bookings
     [rows] = await db.query(
-      `SELECT b.*, s.name AS service_name
+      `SELECT b.*, s.name AS service_name, s.images AS service_image, s.provider_id, p.name AS provider_name
        FROM bookings b
        LEFT JOIN services s ON s.id = b.service_id
-       WHERE b.user_id = ?
+       LEFT JOIN users p ON p.id = s.provider_id
+       WHERE b.tourist_id = ?
        ORDER BY b.created_at DESC`,
       [user_id]
     );
@@ -87,9 +81,8 @@ const getBookings = asyncHandler(async (req, res) => {
 });
 
 // ─── PATCH /api/bookings/:id/cancel ──────────────────────────────────────────
-// Tourist cancels their own booking (only if still pending).
 const cancelBooking = asyncHandler(async (req, res) => {
-  const { id }     = req.params;
+  const { id } = req.params;
   const { id: user_id } = req.user;
 
   const [booking] = await db.query(
@@ -104,8 +97,7 @@ const cancelBooking = asyncHandler(async (req, res) => {
 
   const b = booking[0];
 
-  // Only the owner can cancel
-  if (b.user_id !== user_id) {
+  if (b.tourist_id !== user_id) {
     res.status(403);
     throw new Error('Not authorised to cancel this booking');
   }
@@ -124,16 +116,14 @@ const cancelBooking = asyncHandler(async (req, res) => {
 });
 
 // ─── PATCH /api/bookings/:id/confirm ─────────────────────────────────────────
-// Provider confirms a booking for their service.
 const confirmBooking = asyncHandler(async (req, res) => {
-  const { id }     = req.params;
+  const { id } = req.params;
   const { id: user_id } = req.user;
 
   const [booking] = await db.query(
     `SELECT b.*, s.provider_id
      FROM bookings b
-     LEFT JOIN services  s  ON s.id = b.service_id
-     LEFT JOIN providers p  ON p.id = s.provider_id
+     LEFT JOIN services s ON s.id = b.service_id
      WHERE b.id = ?`,
     [id]
   );
@@ -145,14 +135,7 @@ const confirmBooking = asyncHandler(async (req, res) => {
 
   const b = booking[0];
 
-  // Only the provider who owns the service can confirm
-  // We need the provider record for this user
-  const [provider] = await db.query(
-    'SELECT id FROM providers WHERE user_id = ?',
-    [user_id]
-  );
-
-  if (!provider.length || provider[0].id !== b.provider_id) {
+  if (b.provider_id !== user_id) {
     res.status(403);
     throw new Error('Not authorised to confirm this booking');
   }

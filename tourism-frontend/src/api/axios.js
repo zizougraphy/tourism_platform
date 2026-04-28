@@ -70,9 +70,10 @@ export const markAllRead      = ()   => API.patch('/notifications/read-all');
 export const markOneRead      = (id) => API.patch(`/notifications/${id}/read`);
 
 // ── Provider 
-export const createService = (data)     => API.post('/provider/services', data);
-export const updateService = (id, data) => API.put(`/provider/services/${id}`, data);
-export const deleteService = (id)       => API.delete(`/provider/services/${id}`);
+export const getProviderServices = ()          => API.get('/provider/services');
+export const createService      = (data)      => API.post('/provider/services', data);
+export const updateService      = (id, data)  => API.put(`/provider/services/${id}`, data);
+export const deleteService      = (id)        => API.delete(`/provider/services/${id}`);
 
 // ── Admin 
 export const getProviders    = ()   => API.get('/admin/providers');

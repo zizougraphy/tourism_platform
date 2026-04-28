@@ -2,7 +2,6 @@ const db = require('../config/db');
 const { asyncHandler } = require('../middleware/error.middleware');
 
 // ─── POST /api/messages ───────────────────────────────────────────────────────
-// Send a message to another user (tourist → provider or provider → tourist).
 const sendMessage = asyncHandler(async (req, res) => {
   const { receiver_id, content } = req.body;
   const sender_id = req.user.id;
@@ -25,7 +24,7 @@ const sendMessage = asyncHandler(async (req, res) => {
   }
 
   const [result] = await db.query(
-    'INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)',
+    'INSERT INTO messages (sender_id, receiver_id, content, sent_at) VALUES (?, ?, ?, NOW())',
     [sender_id, receiver_id, content]
   );
 
@@ -38,20 +37,19 @@ const sendMessage = asyncHandler(async (req, res) => {
 });
 
 // ─── GET /api/messages/:userId ────────────────────────────────────────────────
-// Conversation between current user and another user.
 const getConversation = asyncHandler(async (req, res) => {
   const { userId }   = req.params;
   const current_user = req.user.id;
 
   const [rows] = await db.query(
-    `SELECT m.id, m.content, m.created_at, m.is_read,
+    `SELECT m.id, m.content, m.sent_at as created_at, m.is_read,
             m.sender_id, m.receiver_id,
             u.name AS sender_name
      FROM messages m
      LEFT JOIN users u ON u.id = m.sender_id
      WHERE (m.sender_id = ? AND m.receiver_id = ?)
         OR (m.sender_id = ? AND m.receiver_id = ?)
-     ORDER BY m.created_at ASC`,
+     ORDER BY m.sent_at ASC`,
     [current_user, userId, userId, current_user]
   );
 
@@ -65,16 +63,14 @@ const getConversation = asyncHandler(async (req, res) => {
 });
 
 // ─── GET /api/messages ────────────────────────────────────────────────────────
-// Returns inbox: latest message from each conversation partner.
 const getInbox = asyncHandler(async (req, res) => {
   const user_id = req.user.id;
 
-  // Subquery groups by conversation partner and picks the latest message each time.
   const [rows] = await db.query(
     `SELECT
        m.id,
        m.content,
-       m.created_at,
+       m.sent_at as created_at,
        m.is_read,
        m.sender_id,
        m.receiver_id,
@@ -85,11 +81,10 @@ const getInbox = asyncHandler(async (req, res) => {
        CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END
      )
      WHERE m.sender_id = ? OR m.receiver_id = ?
-     ORDER BY m.created_at DESC`,
+     ORDER BY m.sent_at DESC`,
     [user_id, user_id, user_id, user_id]
   );
 
-  // Deduplicate — keep only the latest message per conversation partner
   const seen = new Set();
   const inbox = rows.filter(row => {
     if (seen.has(row.partner_id)) return false;

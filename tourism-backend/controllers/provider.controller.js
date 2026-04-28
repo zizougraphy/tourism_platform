@@ -4,20 +4,34 @@ const { asyncHandler } = require('../middleware/error.middleware');
 // Helper — get provider record for the logged-in user (throws if not found)
 const getProvider = async (user_id, res) => {
   const [rows] = await db.query(
-    'SELECT id, status FROM providers WHERE user_id = ?',
+    'SELECT id, role, is_active FROM users WHERE id = ?',
     [user_id]
   );
-  if (!rows.length) {
+  if (!rows.length || rows[0].role !== 'service_provider') {
     res.status(403);
     throw new Error('Provider profile not found');
   }
-  // still pending and not accepted from the adming
-  if (rows[0].status !== 'approved') {
+  if (!rows[0].is_active) {
     res.status(403);
-    throw new Error('Your provider account is not approved yet');
+    throw new Error('Your provider account is not active');
   }
   return rows[0];
 };
+
+// ─── GET /api/provider/services ──────────────────────────────────────────────
+const getMyServices = asyncHandler(async (req, res) => {
+  const provider = await getProvider(req.user.id, res);
+  
+  const [services] = await db.query(
+    `SELECT s.*, c.name as city_name 
+     FROM services s 
+     LEFT JOIN cities c ON c.id = s.city_id 
+     WHERE s.provider_id = ? AND s.is_available = 1`,
+    [provider.id]
+  );
+
+  res.json({ data: services });
+});
 
 // ─── POST /api/provider/services ─────────────────────────────────────────────
 const createService = asyncHandler(async (req, res) => {
@@ -30,7 +44,7 @@ const createService = asyncHandler(async (req, res) => {
   }
 
   const [result] = await db.query(
-    `INSERT INTO services (provider_id, name, description, category, price, city_id, image_url)
+    `INSERT INTO services (provider_id, name, description, category, price, city_id, images)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [provider.id, name, description || null, category, price, city_id, image_url || null]
   );
@@ -47,7 +61,7 @@ const createService = asyncHandler(async (req, res) => {
 const updateService = asyncHandler(async (req, res) => {
   const provider  = await getProvider(req.user.id, res);
   const { id }    = req.params;
-  const { name, description, category, price, city_id, image_url, is_active } = req.body;
+  const { name, description, category, price, city_id, image_url, is_available } = req.body;
 
   // Make sure the service belongs to this provider
   const [rows] = await db.query(
@@ -60,17 +74,17 @@ const updateService = asyncHandler(async (req, res) => {
     throw new Error('Service not found or not owned by you');
   }
 
-  // Build dynamic SET clause — only update fields that were sent
+  // Build dynamic SET clause
   const fields = [];
   const params = [];
 
-  if (name        !== undefined) { fields.push('name = ?');        params.push(name); }
-  if (description !== undefined) { fields.push('description = ?'); params.push(description); }
-  if (category    !== undefined) { fields.push('category = ?');    params.push(category); }
-  if (price       !== undefined) { fields.push('price = ?');       params.push(price); }
-  if (city_id     !== undefined) { fields.push('city_id = ?');     params.push(city_id); }
-  if (image_url   !== undefined) { fields.push('image_url = ?');   params.push(image_url); }
-  if (is_active   !== undefined) { fields.push('is_active = ?');   params.push(is_active); }
+  if (name         !== undefined) { fields.push('name = ?');         params.push(name); }
+  if (description  !== undefined) { fields.push('description = ?');  params.push(description); }
+  if (category     !== undefined) { fields.push('category = ?');     params.push(category); }
+  if (price        !== undefined) { fields.push('price = ?');        params.push(price); }
+  if (city_id      !== undefined) { fields.push('city_id = ?');      params.push(city_id); }
+  if (image_url    !== undefined) { fields.push('images = ?');       params.push(image_url); }
+  if (is_available !== undefined) { fields.push('is_available = ?'); params.push(is_available ? 1 : 0); }
 
   if (!fields.length) {
     res.status(400);
@@ -86,7 +100,6 @@ const updateService = asyncHandler(async (req, res) => {
 });
 
 // ─── DELETE /api/provider/services/:id ───────────────────────────────────────
-// Soft delete — sets is_active = 0 so historical bookings remain intact
 const deleteService = asyncHandler(async (req, res) => {
   const provider = await getProvider(req.user.id, res);
   const { id }   = req.params;
@@ -101,9 +114,9 @@ const deleteService = asyncHandler(async (req, res) => {
     throw new Error('Service not found or not owned by you');
   }
 
-  await db.query('UPDATE services SET is_active = 0 WHERE id = ?', [id]);
+  await db.query('UPDATE services SET is_available = 0 WHERE id = ?', [id]);
 
   res.json({ message: 'Service deactivated successfully' });
 });
 
-module.exports = { createService, updateService, deleteService };
+module.exports = { getMyServices, createService, updateService, deleteService };

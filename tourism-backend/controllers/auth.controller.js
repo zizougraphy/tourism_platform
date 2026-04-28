@@ -9,8 +9,8 @@ const register = asyncHandler(async (req, res) => {
   const { name, email, password, phone, role } = req.body;
 
   // Validate role
-  if (!['tourist', 'provider'].includes(role)) {
-    return res.status(400).json({ message: 'Role must be tourist or provider' });
+  if (!['tourist', 'service_provider'].includes(role)) {
+    return res.status(400).json({ message: 'Role must be tourist or service_provider' });
   }
 
   // Check if email already exists
@@ -36,13 +36,15 @@ const register = asyncHandler(async (req, res) => {
   const userId = result.insertId;
 
   // If provider — create pending provider record
-  if (role === 'provider') {
+  /* 
+  if (role === 'service_provider') {
     await db.query(
       `INSERT INTO service_providers (user_id, status, created_at)
        VALUES (?, 'pending', NOW())`,
       [userId]
     );
   }
+  */
 
   // Generate token and respond
   const token = generateToken({ id: userId, email, role });

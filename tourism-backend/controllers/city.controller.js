@@ -6,7 +6,7 @@ const { asyncHandler }  = require ('../middleware/error.middleware');
 const getCities = asyncHandler(async (req, res) => {
     const { search } = req.query; // data from URL: GET /api/cities?search=Algiers
     const params = []; // values for placeholders.
-    let sql = 'SELECT id, name, description, weather FROM cities';
+    let sql = 'SELECT id, name, description, weather, images FROM cities';
 
     if(search) { // adding and searching filters if exists
         sql += ' WHERE name LIKE ?'; // becoms : SELECT ... FROM cities WHERE name LIKE '%alg%'

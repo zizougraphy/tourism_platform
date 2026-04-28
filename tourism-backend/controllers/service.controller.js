@@ -14,7 +14,7 @@ const getServices = asyncHandler(async (req, res) => {
         search,
     } = req.query;
 
-    const conditions = ['s.is_active = 1']; // initialized at s.is_active = 1 because we only display active services; 
+    const conditions = ['s.is_available = 1']; // initialized at s.is_available = 1 because we only display active services; 
     const params = [];
 
     if (city_id) {
@@ -22,7 +22,7 @@ const getServices = asyncHandler(async (req, res) => {
         params.push(city_id); // params used for placeholders parameters of query
     }
     if (category) {
-        conditions.push('category = ?');
+        conditions.push('s.category = ?');
         params.push(category);
     }
     if (min_price) {
@@ -30,11 +30,11 @@ const getServices = asyncHandler(async (req, res) => {
         params.push(Number(min_price));
     }
     if (max_price) {
-        conditions.push('s.pric <= ?');
+        conditions.push('s.price <= ?');
         params.push(max_price);
     }
     if (min_rating) {
-        conditions.push('s.avg_rating >= ?');
+        conditions.push('s.rating >= ?');
         params.push(min_rating);
     }
     if (search) {
@@ -65,18 +65,17 @@ const getServices = asyncHandler(async (req, res) => {
        s.description,
        s.category,
        s.price,
-       s.avg_rating,
-       s.image_url,
+       s.rating,
+       s.images as image_url,
        s.city_id,
        c.name  AS city_name,
        u.name  AS provider_name,
        s.created_at
      FROM services s
-     LEFT JOIN cities    c ON c.id = s.city_id
-     LEFT JOIN providers p ON p.id = s.provider_id
-     LEFT JOIN users     u ON u.id = p.user_id
+     LEFT JOIN cities c ON c.id = s.city_id
+     LEFT JOIN users u ON u.id = s.provider_id
      ${whereClause}
-     ORDER BY s.avg_rating DESC, s.created_at DESC
+     ORDER BY s.rating DESC, s.created_at DESC
      LIMIT ? OFFSET ?`,
         [...params, Number(limit), offset]
     );
@@ -104,18 +103,17 @@ const getServiceById = asyncHandler(async (req, res) => {
        s.description,
        s.category,
        s.price,
-       s.avg_rating,
-       s.image_url,
+       s.rating,
+       s.images as image_url,
        s.city_id,
        c.name  AS city_name,
        u.name  AS provider_name,
-       p.id    AS provider_id,
+       s.provider_id,
        s.created_at
      FROM services s
-     LEFT JOIN cities   c ON c.id = s.city_id
-     LEFT JOIN providers p ON p.id = s.provider_id
-     LEFT JOIN users    u ON u.id = p.user_id
-     WHERE s.id = ? AND s.is_active = 1`,
+     LEFT JOIN cities c ON c.id = s.city_id
+     LEFT JOIN users u ON u.id = s.provider_id
+     WHERE s.id = ? AND s.is_available = 1`,
     [id]
   );
  
@@ -130,12 +128,12 @@ const getServiceById = asyncHandler(async (req, res) => {
        r.id,
        r.rating,
        r.comment,
-       r.created_at,
+       r.date as created_at,
        u.name AS reviewer_name
      FROM reviews r
-     LEFT JOIN users u ON u.id = r.user_id
+     LEFT JOIN users u ON u.id = r.tourist_id
      WHERE r.service_id = ?
-     ORDER BY r.created_at DESC
+     ORDER BY r.date DESC
      LIMIT 20`,
     [id]
   );

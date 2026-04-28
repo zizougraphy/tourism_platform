@@ -4,7 +4,7 @@ const { asyncHandler } = require('../middleware/error.middleware');
 // ─── POST /api/favorites ──────────────────────────────────────────────────────
 const addFavorite = asyncHandler(async (req, res) => {
   const { service_id } = req.body;
-  const user_id = req.user.id;
+  const tourist_id = req.user.id;
 
   if (!service_id) {
     res.status(400);
@@ -18,10 +18,10 @@ const addFavorite = asyncHandler(async (req, res) => {
     throw new Error('Service not found');
   }
 
-  // Ignore if already favourited (INSERT IGNORE handles duplicate key silently)
+  // Ignore if already favourited
   await db.query(
-    'INSERT IGNORE INTO favorites (user_id, service_id) VALUES (?, ?)',
-    [user_id, service_id]
+    'INSERT IGNORE INTO favorites (tourist_id, service_id, date_saved) VALUES (?, ?, ?)',
+    [tourist_id, service_id, new Date().toISOString().split('T')[0]]
   );
 
   res.status(201).json({ message: 'Added to favorites' });
@@ -29,17 +29,17 @@ const addFavorite = asyncHandler(async (req, res) => {
 
 // ─── GET /api/favorites ───────────────────────────────────────────────────────
 const getFavorites = asyncHandler(async (req, res) => {
-  const user_id = req.user.id;
+  const tourist_id = req.user.id;
 
   const [rows] = await db.query(
-    `SELECT s.id, s.name, s.category, s.price, s.avg_rating, s.image_url,
-            c.name AS city_name, f.created_at AS saved_at
+    `SELECT s.id, s.name, s.category, s.price, s.rating, s.images as image_url,
+            c.name AS city_name, f.date_saved AS saved_at
      FROM favorites f
      LEFT JOIN services s ON s.id = f.service_id
      LEFT JOIN cities   c ON c.id = s.city_id
-     WHERE f.user_id = ?
-     ORDER BY f.created_at DESC`,
-    [user_id]
+     WHERE f.tourist_id = ?
+     ORDER BY f.date_saved DESC`,
+    [tourist_id]
   );
 
   res.json({ data: rows });
@@ -48,11 +48,11 @@ const getFavorites = asyncHandler(async (req, res) => {
 // ─── DELETE /api/favorites/:serviceId ────────────────────────────────────────
 const removeFavorite = asyncHandler(async (req, res) => {
   const { serviceId } = req.params;
-  const user_id = req.user.id;
+  const tourist_id = req.user.id;
 
   await db.query(
-    'DELETE FROM favorites WHERE user_id = ? AND service_id = ?',
-    [user_id, serviceId]
+    'DELETE FROM favorites WHERE tourist_id = ? AND service_id = ?',
+    [tourist_id, serviceId]
   );
 
   res.json({ message: 'Removed from favorites' });
