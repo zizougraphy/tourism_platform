@@ -29,7 +29,7 @@ const Messages = () => {
     if (location.state?.provider_id && !loadingInbox) {
       const pId = location.state.provider_id;
       // Ensure the provider is in the inbox, or select them if they exist
-      if (!inbox.find(chat => chat.partner_id === pId)) {
+      if (!inbox.find(chat => Number(chat.partner_id) === Number(pId))) {
         setInbox(prev => [{
           partner_id: pId,
           partner_name: location.state.provider_name,
@@ -76,7 +76,7 @@ const Messages = () => {
       
       // Update inbox to mark read
       setInbox(prev => prev.map(chat => 
-        chat.partner_id === userId ? { ...chat, is_read: 1 } : chat
+        Number(chat.partner_id) === Number(userId) ? { ...chat, is_read: 1 } : chat
       ));
     } catch (err) {
       console.error(err);
@@ -97,11 +97,11 @@ const Messages = () => {
       
       // Update inbox with latest message
       setInbox(prev => {
-        const existing = prev.find(c => c.partner_id === selectedChatId);
+        const existing = prev.find(c => Number(c.partner_id) === Number(selectedChatId));
         if (existing) {
           return [
             { ...existing, content: newMsg.content, created_at: newMsg.sent_at },
-            ...prev.filter(c => c.partner_id !== selectedChatId)
+            ...prev.filter(c => Number(c.partner_id) !== Number(selectedChatId))
           ];
         } else {
           return [{
@@ -117,7 +117,7 @@ const Messages = () => {
     }
   };
 
-  const activeChat = inbox.find(c => c.partner_id === selectedChatId);
+  const activeChat = inbox.find(c => Number(c.partner_id) === Number(selectedChatId));
 
   const isDashboard = location.pathname.includes('/dashboard');
 
@@ -144,7 +144,7 @@ const Messages = () => {
                   key={chat.partner_id} 
                   onClick={() => setSelectedChatId(chat.partner_id)}
                   className={`flex items-center gap-4 p-6 cursor-pointer border-l-4 transition-all ${
-                    selectedChatId === chat.partner_id ? 'bg-brand-50/50 border-brand-600' : 'border-transparent hover:bg-slate-50'
+                    Number(selectedChatId) === Number(chat.partner_id) ? 'bg-brand-50/50 border-brand-600' : 'border-transparent hover:bg-slate-50'
                   }`}
                 >
                   <div className="relative">

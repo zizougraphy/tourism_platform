@@ -12,6 +12,7 @@ const getServices = asyncHandler(async (req, res) => {
         page = 1,
         limit = 10,
         search,
+        sort,
     } = req.query;
 
     const conditions = ['s.is_available = 1']; // initialized at s.is_available = 1 because we only display active services; 
@@ -57,6 +58,13 @@ const getServices = asyncHandler(async (req, res) => {
     );
     const total = countRows[0].total;
 
+    // Determine ordering
+    let orderClause = 'ORDER BY s.rating DESC, s.created_at DESC';
+    if (sort === 'price_asc') orderClause = 'ORDER BY s.price ASC';
+    else if (sort === 'price_desc') orderClause = 'ORDER BY s.price DESC';
+    else if (sort === 'rating') orderClause = 'ORDER BY s.rating DESC, s.created_at DESC';
+    else if (sort === 'recommended') orderClause = 'ORDER BY s.rating DESC, s.created_at DESC';
+
     // Main query — join city name and provider name for convenience
     const [services] = await db.query(
         `SELECT
@@ -75,7 +83,7 @@ const getServices = asyncHandler(async (req, res) => {
      LEFT JOIN cities c ON c.id = s.city_id
      LEFT JOIN users u ON u.id = s.provider_id
      ${whereClause}
-     ORDER BY s.rating DESC, s.created_at DESC
+     ${orderClause}
      LIMIT ? OFFSET ?`,
         [...params, Number(limit), offset]
     );

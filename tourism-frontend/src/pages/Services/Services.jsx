@@ -17,6 +17,11 @@ const Services = () => {
   const [services, setServices] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam.toLowerCase());
   const [searchQuery, setSearchQuery] = useState(queryParam);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minRating, setMinRating] = useState('');
+  const [guests, setGuests] = useState(1);
+  const [sortBy, setSortBy] = useState('recommended');
   const [loading, setLoading] = useState(true);
   
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -28,12 +33,16 @@ const Services = () => {
     const params = {};
     if (selectedCategory !== 'all') params.category = selectedCategory;
     if (searchQuery) params.search = searchQuery;
+    if (minPrice) params.min_price = minPrice;
+    if (maxPrice) params.max_price = maxPrice;
+    if (minRating) params.min_rating = minRating;
+    if (sortBy) params.sort = sortBy;
 
     api.getServices(params)
       .then(res => setServices(res.data.data || res.data.services || res.data || []))
       .catch(() => setServices([]))
       .finally(() => setLoading(false));
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, minPrice, maxPrice, minRating, sortBy]);
 
   return (
     <div className="pt-32 pb-24 px-6 md:px-12 bg-slate-50 min-h-screen">
@@ -81,7 +90,74 @@ const Services = () => {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full" onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }}>
+            {/* Price Filter */}
+            <div>
+              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading">Price Range</h4>
+              <div className="flex items-center gap-2">
+                <Input 
+                  type="number" 
+                  placeholder="Min" 
+                  value={minPrice} 
+                  onChange={(e) => setMinPrice(e.target.value)} 
+                  className="w-full"
+                />
+                <span className="text-slate-400">-</span>
+                <Input 
+                  type="number" 
+                  placeholder="Max" 
+                  value={maxPrice} 
+                  onChange={(e) => setMaxPrice(e.target.value)} 
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            {/* Rating Filter */}
+            <div>
+              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading">Minimum Rating</h4>
+              <div className="space-y-2">
+                {[5, 4, 3].map(rating => (
+                  <label key={rating} className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="radio" 
+                      name="rating" 
+                      checked={Number(minRating) === rating}
+                      onChange={() => setMinRating(rating)}
+                      className="w-4 h-4 text-brand-600 border-slate-300 focus:ring-brand-500"
+                    />
+                    <div className="flex items-center gap-1 group-hover:text-brand-600 transition-colors">
+                      {Array.from({length: rating}).map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-accent text-accent" />
+                      ))}
+                      <span className="text-sm font-medium text-slate-600 ml-1">& up</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Guests Placeholder */}
+            <div>
+              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading">Guests</h4>
+              <Input 
+                type="number" 
+                min="1"
+                max="10"
+                value={guests} 
+                onChange={(e) => setGuests(e.target.value)} 
+                className="w-full"
+              />
+              <p className="text-xs text-slate-400 mt-2">* Visual placeholder for UI consistency</p>
+            </div>
+
+            <Button variant="outline" className="w-full" onClick={() => { 
+              setSelectedCategory('all'); 
+              setSearchQuery(''); 
+              setMinPrice(''); 
+              setMaxPrice(''); 
+              setMinRating('');
+              setGuests(1);
+            }}>
               Reset Filters
             </Button>
           </aside>
@@ -90,8 +166,18 @@ const Services = () => {
           <div className="flex-grow">
             <div className="flex justify-between items-center mb-8">
               <span className="text-slate-500 text-sm font-medium">{services.length} results found</span>
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer hover:text-brand-600">
-                Sort by: Recommended <ChevronDown className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                <span>Sort by:</span>
+                <select 
+                  className="bg-transparent border-none font-bold text-slate-900 focus:ring-0 cursor-pointer outline-none"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="recommended">Recommended</option>
+                  <option value="price_asc">Price (Low to High)</option>
+                  <option value="price_desc">Price (High to Low)</option>
+                  <option value="rating">Top Rated</option>
+                </select>
               </div>
             </div>
 

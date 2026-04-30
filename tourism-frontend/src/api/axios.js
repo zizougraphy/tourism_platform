@@ -36,7 +36,7 @@ export const login    = (data) => API.post('/auth/login', data);
 export const getMe    = ()     => API.get('/auth/me');
 
 // ── Cities 
-export const getCities   = ()   => API.get('/cities');
+export const getCities   = (params)   => API.get('/cities', { params });
 export const getCityById = (id) => API.get(`/cities/${id}`);
 
 // ── Services 

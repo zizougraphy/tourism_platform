@@ -12,6 +12,6 @@ const { authenticate, authorize } = require('../middleware/auth.middleware');
 router.post('/',                    authenticate,                          createBooking);
 router.get('/',                     authenticate,                          getBookings);
 router.patch('/:id/cancel',         authenticate, authorize('tourist'),    cancelBooking);
-router.patch('/:id/confirm',        authenticate, authorize('provider'),   confirmBooking);
+router.patch('/:id/confirm',        authenticate, authorize('service_provider'),   confirmBooking);
 
 module.exports = router;

@@ -44,10 +44,10 @@ INSERT INTO `users` VALUES
   (1,'Ali','ali@gmail.com','$2b$12$.FZnEHJ/QzNuImd4MlwVnuiysVA2nYLBjY0XEwyLnIs8pOD8ZFD3S','0550000000','tourist',NULL,1,'2026-04-08 13:02:17'),
   (2,'Zizou Seghir Bouali','zizoubouali92@gmail.com','$2b$12$UY4.KvDov6sx5J8rbL9TNuPdjzCNAZSVmnidJGYsiUZsbOK0hunZ6','+213 554 528 386','tourist',NULL,1,'2026-04-20 03:33:21'),
   -- Service Providers (id 3-6)
-  (3,'Royal Hotels Group','contact@royalhotels.com','$2b$12$.FZnEHJ/QzNuImd4MlwVnuiysVA2nYLBjY0XEwyLnIs8pOD8ZFD3S','+213 555 111 222','service_provider',NULL,1,'2026-04-25 10:00:00'),
-  (4,'Gourmet Dining Co','info@gourmet.dz','$2b$12$.FZnEHJ/QzNuImd4MlwVnuiysVA2nYLBjY0XEwyLnIs8pOD8ZFD3S','+213 555 333 444','service_provider',NULL,1,'2026-04-25 10:00:00'),
-  (5,'Adventure Tours DZ','tours@adventure.dz','$2b$12$.FZnEHJ/QzNuImd4MlwVnuiysVA2nYLBjY0XEwyLnIs8pOD8ZFD3S','+213 555 555 666','service_provider',NULL,1,'2026-04-25 10:00:00'),
-  (6,'Coastal Transport','fleet@coastal.dz','$2b$12$.FZnEHJ/QzNuImd4MlwVnuiysVA2nYLBjY0XEwyLnIs8pOD8ZFD3S','+213 555 777 888','service_provider',NULL,1,'2026-04-25 10:00:00');
+  (3,'Royal Hotels Group','contact@royalhotels.com','$2b$12$uautowXMztzZyyzE4nEmm.IxQvlSsLQKF2tJ0rzhzBdFvpgIqywDW','+213 555 111 222','service_provider',NULL,1,'2026-04-25 10:00:00'),
+  (4,'Gourmet Dining Co','info@gourmet.dz','$2b$12$uautowXMztzZyyzE4nEmm.IxQvlSsLQKF2tJ0rzhzBdFvpgIqywDW','+213 555 333 444','service_provider',NULL,1,'2026-04-25 10:00:00'),
+  (5,'Adventure Tours DZ','tours@adventure.dz','$2b$12$uautowXMztzZyyzE4nEmm.IxQvlSsLQKF2tJ0rzhzBdFvpgIqywDW','+213 555 555 666','service_provider',NULL,1,'2026-04-25 10:00:00'),
+  (6,'Coastal Transport','fleet@coastal.dz','$2b$12$uautowXMztzZyyzE4nEmm.IxQvlSsLQKF2tJ0rzhzBdFvpgIqywDW','+213 555 777 888','service_provider',NULL,1,'2026-04-25 10:00:00');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -151,6 +151,7 @@ CREATE TABLE `bookings` (
   `check_out_date` date NOT NULL,
   `status` enum('pending','confirmed','cancelled','completed') DEFAULT 'pending',
   `total_price` float DEFAULT NULL,
+  `guests` int DEFAULT '1',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `tourist_id` int NOT NULL,
   `service_id` int NOT NULL,

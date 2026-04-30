@@ -12,6 +12,9 @@ import { Input } from '../../components/ui/Input';
 import * as api from '../../api/axios';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useAuth } from '../../context/AuthContext';
+import { DatePicker } from '../../components/ui/DatePicker';
+import { GuestSelector } from '../../components/ui/GuestSelector';
+import { format } from 'date-fns';
 
 export default function ServiceDetail() {
   const { id } = useParams();
@@ -21,9 +24,8 @@ export default function ServiceDetail() {
   const [loading, setLoading] = useState(true);
   
   // Booking state
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
-  const [guests, setGuests] = useState(1);
+  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined });
+  const [guests, setGuests] = useState({ adults: 1, children: 0 });
   const [bookingMsg, setBookingMsg] = useState('');
   
   // Review state
@@ -56,16 +58,16 @@ export default function ServiceDetail() {
       navigate('/login');
       return;
     }
-    if (!checkIn || !checkOut) {
+    if (!dateRange?.from || !dateRange?.to) {
       setBookingMsg('Please select dates');
       return;
     }
     try {
       await api.createBooking({ 
         service_id: service.id, 
-        check_in_date: checkIn, 
-        check_out_date: checkOut,
-        guests: guests
+        check_in_date: format(dateRange.from, 'yyyy-MM-dd'), 
+        check_out_date: format(dateRange.to, 'yyyy-MM-dd'),
+        guests: guests.adults + guests.children
       });
       setBookingMsg('Booking confirmed!');
       setTimeout(() => navigate('/bookings'), 2000);
@@ -247,7 +249,7 @@ export default function ServiceDetail() {
         {/* Booking Sidebar */}
         <aside>
           <div className="sticky top-28">
-            <Card className="p-8 border-none shadow-2xl space-y-8 rounded-[2.5rem]">
+            <Card className="p-8 border-none shadow-2xl space-y-8 rounded-[2.5rem] !overflow-visible">
               <div className="flex justify-between items-end">
                 <div>
                   <span className="text-3xl font-bold">${service.price}</span>
@@ -256,22 +258,11 @@ export default function ServiceDetail() {
               </div>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-1">
-                    <label className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Check In</label>
-                    <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="bg-transparent border-none p-0 text-sm font-bold text-slate-700 outline-none" />
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-1">
-                    <label className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Check Out</label>
-                    <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="bg-transparent border-none p-0 text-sm font-bold text-slate-700 outline-none" />
-                  </div>
+                <div className="p-1 rounded-[1.5rem] bg-slate-50 border border-slate-100 flex flex-col gap-1">
+                  <DatePicker date={dateRange} setDate={setDateRange} placeholder="Select dates" align="right" />
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-1">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Guests</label>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-slate-400" />
-                    <input type="number" min="1" max="10" value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="bg-transparent border-none p-0 text-sm font-bold text-slate-700 outline-none w-full" />
-                  </div>
+                <div className="p-1 rounded-[1.5rem] bg-slate-50 border border-slate-100 flex flex-col gap-1">
+                  <GuestSelector guests={guests} setGuests={setGuests} align="right" />
                 </div>
               </div>
 

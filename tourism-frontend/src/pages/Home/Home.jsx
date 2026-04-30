@@ -7,13 +7,17 @@ import * as api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-
+import { DatePicker } from '../../components/ui/DatePicker';
+import { GuestSelector } from '../../components/ui/GuestSelector';
+import { AutocompleteSearch } from '../../components/ui/AutocompleteSearch';
 // Lazy load Spline to prevent blocking the main thread
 const Spline = lazy(() => import('@splinetool/react-spline'));
 
 export default function Home() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined });
+  const [guests, setGuests] = useState({ adults: 2, children: 0 });
   const [cities, setCities] = useState([]);
   const [services, setServices] = useState([]);
   const [splineLoaded, setSplineLoaded] = useState(false);
@@ -29,7 +33,7 @@ export default function Home() {
       <section className="relative h-[95vh] flex items-center justify-center pt-20 px-6 bg-slate-900">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=2000"
+            src="./dist/assets/travel-bg3.jpg"
             className="w-full h-full object-cover brightness-[0.6]"
             alt="Horizon Landscape"
           />
@@ -67,35 +71,18 @@ export default function Home() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="bg-white p-2 md:p-4 rounded-3xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto border border-white/20 glass-morphism pointer-events-auto"
+            className="relative z-50 bg-white p-2 md:p-4 rounded-3xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto border border-white/20 glass-morphism pointer-events-auto"
           >
-            <div className="flex-1 w-full flex items-center gap-3 px-6 py-2 border-b md:border-b-0 md:border-r border-slate-100">
-              <MapPin className="text-brand-500 w-5 h-5 flex-shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Where to next?"
-                className="w-full bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 font-medium outline-none"
-              />
+            <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-slate-100 px-2">
+              <AutocompleteSearch value={searchQuery} onChange={setSearchQuery} />
             </div>
-            <div className="flex-1 w-full flex items-center gap-3 px-6 py-2 border-b md:border-b-0 md:border-r border-slate-100">
-              <Calendar className="text-brand-500 w-5 h-5 flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="Add dates"
-                className="w-full bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 font-medium outline-none"
-              />
+            <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-slate-100 px-2">
+              <DatePicker date={dateRange} setDate={setDateRange} placeholder="Add dates" />
             </div>
-            <div className="flex-1 w-full flex items-center gap-3 px-6 py-2">
-              <Users className="text-brand-500 w-5 h-5 flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="2 Guests"
-                className="w-full bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 font-medium outline-none"
-              />
+            <div className="flex-1 w-full px-2">
+              <GuestSelector guests={guests} setGuests={setGuests} />
             </div>
-            <Link to={`/services${searchQuery ? \`?query=\${encodeURIComponent(searchQuery)}\` : ''}`} className="w-full md:w-auto">
+            <Link to={`/services${searchQuery ? '?query=' + encodeURIComponent(searchQuery) : ''}`} className="w-full md:w-auto">
               <Button size="lg" className="w-full h-14 px-10">
                 <Search className="w-5 h-5 mr-2" />
                 Search
