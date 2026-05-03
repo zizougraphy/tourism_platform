@@ -9,12 +9,12 @@ const Favorites = () => {
   const { favorites, toggleFavorite, clearFavorites } = useFavorites();
 
   return (
-    <div className="pt-32 pb-24 px-6 md:px-12 bg-slate-50 min-h-screen">
+    <div className="pt-32 pb-24 px-6 md:px-12 bg-slate-50 dark:bg-slate-950 min-h-screen">
       <div className="max-w-7xl mx-auto space-y-12">
-        <header className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-slate-200 pb-12">
+        <header className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-slate-200 dark:border-slate-800 pb-12">
           <div className="space-y-2">
-            <h1 className="text-4xl md:text-5xl font-bold font-heading">Saved Horizons</h1>
-            <p className="text-slate-500">Your personal collection of premium stays, dining, and experiences.</p>
+            <h1 className="text-4xl md:text-5xl font-bold font-heading dark:text-white">Saved Horizons</h1>
+            <p className="text-slate-500 dark:text-slate-400">Your personal collection of premium stays, dining, and experiences.</p>
           </div>
           <div className="flex gap-4">
             {favorites.length > 0 && (
@@ -44,7 +44,7 @@ const Favorites = () => {
                     />
                     <button 
                       onClick={(e) => { e.preventDefault(); toggleFavorite(service); }}
-                      className="absolute top-4 right-4 p-2 bg-rose-500 rounded-full text-white shadow-lg hover:scale-110 transition-transform"
+                      className="absolute top-4 right-4 p-2 bg-rose-500 rounded-full text-white shadow-lg hover:scale-110 transition-transform cursor-pointer"
                     >
                       <Heart className="w-5 h-5 fill-current" />
                     </button>
@@ -53,14 +53,14 @@ const Favorites = () => {
                   <div className="p-8 space-y-6 flex flex-col flex-grow">
                     <div className="space-y-2 flex-grow">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-600">{service.category || 'Premium'}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">{service.category || 'Premium'}</span>
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 fill-accent text-accent" />
-                          <span className="font-bold text-sm">{service.rating || '4.8'}</span>
+                          <span className="font-bold text-sm dark:text-slate-200">{service.rating || '4.8'}</span>
                         </div>
                       </div>
                       <Link to={`/services/${service.id}`}>
-                        <h3 className="text-xl font-bold line-clamp-1 font-heading hover:text-brand-600 transition-colors">{service.name || service.title}</h3>
+                        <h3 className="text-xl font-bold line-clamp-1 font-heading hover:text-brand-600 dark:hover:text-brand-400 transition-colors dark:text-white">{service.name || service.title}</h3>
                       </Link>
                       <div className="flex items-center gap-2 text-slate-400 text-sm">
                         <MapPin className="w-4 h-4" />
@@ -68,13 +68,13 @@ const Favorites = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-6 border-t border-slate-100 shrink-0">
+                    <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-700 shrink-0">
                       <div>
-                        <span className="text-2xl font-bold text-slate-900">${service.price}</span>
+                        <span className="text-2xl font-bold text-slate-900 dark:text-white">${service.price}</span>
                         <span className="text-slate-400 text-sm font-medium"> / night</span>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="secondary" size="icon" className="rounded-xl p-2 text-slate-400 hover:text-rose-600" onClick={() => toggleFavorite(service)}>
+                        <Button variant="secondary" size="icon" className="rounded-xl p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400" onClick={() => toggleFavorite(service)}>
                           <Trash2 className="w-5 h-5" />
                         </Button>
                         <Link to={`/services/${service.id}`}>
@@ -88,12 +88,12 @@ const Favorites = () => {
             ))}
           </div>
         ) : (
-          <div className="py-32 text-center space-y-6 bg-white rounded-[3rem] border border-slate-100">
-            <div className="inline-flex p-6 bg-rose-50 rounded-full">
+          <div className="py-32 text-center space-y-6 bg-white dark:bg-slate-800 rounded-[3rem] border border-slate-100 dark:border-slate-700">
+            <div className="inline-flex p-6 bg-rose-50 dark:bg-rose-900/20 rounded-full">
               <Heart className="w-12 h-12 text-rose-500" />
             </div>
-            <h3 className="text-2xl font-bold font-heading">Your list is empty</h3>
-            <p className="text-slate-500 max-w-sm mx-auto">Explore our premium destinations and save your favorite services for later.</p>
+            <h3 className="text-2xl font-bold font-heading dark:text-white">Your list is empty</h3>
+            <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto">Explore our premium destinations and save your favorite services for later.</p>
             <Link to="/services">
               <Button size="lg" className="px-10">Start Exploring</Button>
             </Link>

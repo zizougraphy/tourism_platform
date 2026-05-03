@@ -5,7 +5,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-950 text-slate-300 pt-20 pb-10">
+    <footer className="bg-slate-950 text-slate-300 pt-20 pb-10 dark:bg-slate-950">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
         {/* Brand */}
         <div className="space-y-6">
@@ -76,7 +76,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-slate-900 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
         <p className="text-sm text-slate-500">
           © {currentYear} Horizon Tourism. All rights reserved.
         </p>

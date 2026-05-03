@@ -122,16 +122,16 @@ const Messages = () => {
   const isDashboard = location.pathname.includes('/dashboard');
 
   return (
-    <div className={`${isDashboard ? 'flex bg-slate-50 min-h-screen' : 'pt-24 pb-0 h-[calc(100vh-80px)] flex flex-col bg-white'}`}>
+    <div className={`${isDashboard ? 'flex bg-slate-50 dark:bg-slate-950 min-h-screen' : 'pt-24 pb-0 h-[calc(100vh-80px)] flex flex-col bg-white dark:bg-slate-950'}`}>
       {isDashboard && <Sidebar />}
-      <div className={`flex-grow flex overflow-hidden ${isDashboard ? 'm-8 rounded-[2rem] bg-white shadow-sm border border-slate-100 h-[calc(100vh-64px)]' : 'max-w-7xl mx-auto w-full border-x border-slate-100'}`}>
+      <div className={`flex-grow flex overflow-hidden ${isDashboard ? 'm-8 rounded-[2rem] bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 h-[calc(100vh-64px)]' : 'max-w-7xl mx-auto w-full border-x border-slate-100 dark:border-slate-800'}`}>
         {/* Sidebar */}
-        <aside className="w-full md:w-96 flex flex-col border-r border-slate-100 bg-white z-10">
+        <aside className="w-full md:w-96 flex flex-col border-r border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-10">
           <div className="p-6 space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight font-heading">Messages</h1>
+            <h1 className="text-3xl font-bold tracking-tight font-heading dark:text-white">Messages</h1>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input placeholder="Search conversations..." className="pl-12 rounded-2xl bg-slate-50 border-none h-12" />
+              <Input placeholder="Search conversations..." className="pl-12 rounded-2xl bg-slate-50 dark:bg-slate-800 border-none h-12" />
             </div>
           </div>
 
@@ -144,7 +144,7 @@ const Messages = () => {
                   key={chat.partner_id} 
                   onClick={() => setSelectedChatId(chat.partner_id)}
                   className={`flex items-center gap-4 p-6 cursor-pointer border-l-4 transition-all ${
-                    Number(selectedChatId) === Number(chat.partner_id) ? 'bg-brand-50/50 border-brand-600' : 'border-transparent hover:bg-slate-50'
+                    Number(selectedChatId) === Number(chat.partner_id) ? 'bg-brand-50/50 dark:bg-brand-900/20 border-brand-600' : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <div className="relative">
@@ -155,12 +155,12 @@ const Messages = () => {
                   </div>
                   <div className="flex-grow min-w-0">
                     <div className="flex justify-between items-center mb-1">
-                      <div className="font-bold truncate text-slate-900 font-heading">{chat.partner_name || 'User'}</div>
+                      <div className="font-bold truncate text-slate-900 dark:text-white font-heading">{chat.partner_name || 'User'}</div>
                       <div className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">
                         {chat.created_at ? new Date(chat.created_at).toLocaleDateString() : ''}
                       </div>
                     </div>
-                    <div className={`text-sm truncate ${chat.is_read === 0 && chat.sender_id !== user?.id ? 'text-slate-900 font-bold' : 'text-slate-500 font-medium'}`}>
+                    <div className={`text-sm truncate ${chat.is_read === 0 && chat.sender_id !== user?.id ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 dark:text-slate-400 font-medium'}`}>
                       {chat.content}
                     </div>
                   </div>
@@ -173,15 +173,15 @@ const Messages = () => {
         </aside>
 
         {/* Chat Window */}
-        <main className={`${selectedChatId ? 'flex' : 'hidden'} md:flex flex-col flex-grow bg-slate-50/30 w-full`}>
+        <main className={`${selectedChatId ? 'flex' : 'hidden'} md:flex flex-col flex-grow bg-slate-50/30 dark:bg-slate-950/50 w-full`}>
           {activeChat ? (
             <>
               {/* Header */}
-              <header className="p-6 bg-white border-b border-slate-100 flex items-center justify-between">
+              <header className="p-6 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <img src={`https://ui-avatars.com/api/?name=${activeChat.partner_name}&background=random`} className="w-12 h-12 rounded-full shadow-sm" alt="Active" />
                   <div>
-                    <div className="font-bold text-slate-900 font-heading">{activeChat.partner_name || 'User'}</div>
+                    <div className="font-bold text-slate-900 dark:text-white font-heading">{activeChat.partner_name || 'User'}</div>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Active</span>
                     </div>
@@ -213,7 +213,7 @@ const Messages = () => {
                           {!isMe && (
                             <img src={`https://ui-avatars.com/api/?name=${activeChat.partner_name}&background=random`} className="w-8 h-8 rounded-full self-end shadow-sm hidden sm:block" alt="Avatar" />
                           )}
-                          <div className={`${isMe ? 'bg-brand-600 shadow-lg shadow-brand-600/20 text-white rounded-t-3xl rounded-bl-3xl' : 'bg-white shadow-sm border border-slate-100 text-slate-700 rounded-t-3xl rounded-br-3xl'} p-4 md:p-6`}>
+                          <div className={`${isMe ? 'bg-brand-600 shadow-lg shadow-brand-600/20 text-white rounded-t-3xl rounded-bl-3xl' : 'bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-t-3xl rounded-br-3xl'} p-4 md:p-6`}>
                             <p className="text-sm leading-relaxed font-medium">
                               {msg.content}
                             </p>
@@ -230,8 +230,8 @@ const Messages = () => {
               </div>
 
               {/* Input Area */}
-              <footer className="p-4 md:p-6 bg-white border-t border-slate-100">
-                <div className="flex gap-2 md:gap-4 items-center bg-slate-50 p-2 rounded-[2rem] border border-slate-200 focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-all">
+              <footer className="p-4 md:p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex gap-2 md:gap-4 items-center bg-slate-50 dark:bg-slate-800 p-2 rounded-[2rem] border border-slate-200 dark:border-slate-700 focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-all">
                   <Button variant="ghost" size="icon" className="rounded-full text-slate-400 hover:text-brand-600 hidden sm:flex">
                     <Paperclip className="w-5 h-5" />
                   </Button>
@@ -244,7 +244,7 @@ const Messages = () => {
                         handleSendMessage();
                       }
                     }}
-                    className="flex-grow bg-transparent border-none focus:ring-0 p-3 text-sm max-h-32 resize-none outline-none font-medium text-slate-700"
+                    className="flex-grow bg-transparent border-none focus:ring-0 p-3 text-sm max-h-32 resize-none outline-none font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                     placeholder="Write your message..."
                     rows={1}
                   />

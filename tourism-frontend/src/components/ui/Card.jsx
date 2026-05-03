@@ -8,7 +8,7 @@ const Card = React.forwardRef(
       ref={ref}
       whileHover={{ y: -4 }}
       className={cn(
-        'rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden transition-shadow hover:shadow-xl',
+        'rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden transition-shadow hover:shadow-xl dark:bg-slate-800 dark:border-slate-700/50',
         glass && 'glass-morphism',
         className
       )}

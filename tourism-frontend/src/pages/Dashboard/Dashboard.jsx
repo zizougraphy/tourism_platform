@@ -40,15 +40,15 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="flex bg-slate-50 min-h-screen">
+    <div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen">
       <Sidebar />
       
       <main className="flex-grow p-8 md:p-12 space-y-10">
         {/* Header */}
         <header className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight font-heading">Dashboard Overview</h1>
-            <p className="text-slate-500">Welcome back, {user?.name || 'Provider'}. Here's what's happening today.</p>
+            <h1 className="text-3xl font-bold tracking-tight font-heading dark:text-white">Dashboard Overview</h1>
+            <p className="text-slate-500 dark:text-slate-400">Welcome back, {user?.name || 'Provider'}. Here's what's happening today.</p>
           </div>
           <div className="flex gap-4">
             <Button variant="outline">Download Report</Button>
@@ -67,14 +67,14 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card className="p-6 border-none shadow-sm space-y-4 rounded-3xl">
+              <Card className="p-6 border-none shadow-sm space-y-4 rounded-3xl dark:bg-slate-900">
                 <div className="flex justify-between items-start">
-                  <div className="bg-brand-50 p-3 rounded-2xl">
-                    <stat.icon className="w-6 h-6 text-brand-600" />
+                  <div className="bg-brand-50 dark:bg-brand-900/20 p-3 rounded-2xl">
+                    <stat.icon className="w-6 h-6 text-brand-600 dark:text-brand-400" />
                   </div>
                   <div className={cn(
                     "flex items-center text-xs font-bold px-2 py-1 rounded-lg",
-                    stat.isUp ? "bg-green-50 text-green-600" : "bg-rose-50 text-rose-600"
+                    stat.isUp ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" : "bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400"
                   )}>
                     {stat.isUp ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
                     {stat.change}
@@ -82,7 +82,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <div className="text-slate-400 text-sm font-medium">{stat.label}</div>
-                  <div className="text-3xl font-bold tracking-tight font-heading">{stat.value}</div>
+                  <div className="text-3xl font-bold tracking-tight font-heading dark:text-white">{stat.value}</div>
                 </div>
               </Card>
             </motion.div>
@@ -91,9 +91,9 @@ export default function Dashboard() {
 
         {/* Recent Bookings */}
         <div className="grid lg:grid-cols-3 gap-8">
-          <Card className="lg:col-span-3 p-8 border-none shadow-sm space-y-8 rounded-3xl">
+          <Card className="lg:col-span-3 p-8 border-none shadow-sm space-y-8 rounded-3xl dark:bg-slate-900">
             <div className="flex justify-between items-center">
-              <h3 className="font-bold text-xl font-heading">Recent Activity</h3>
+              <h3 className="font-bold text-xl font-heading dark:text-white">Recent Activity</h3>
               <Link to="/dashboard/bookings">
                 <Button variant="ghost" size="sm">View All</Button>
               </Link>
@@ -101,15 +101,15 @@ export default function Dashboard() {
 
             <div className="space-y-6">
               {bookings.slice(0, 5).map((booking, i) => (
-                <div key={i} className="flex items-center gap-4 group cursor-pointer hover:bg-slate-50 p-2 rounded-2xl transition-colors">
+                <div key={i} className="flex items-center gap-4 group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-2xl transition-colors">
                   <img src={`https://ui-avatars.com/api/?name=${booking.service_name || 'Service'}&background=random`} className="w-10 h-10 rounded-full" alt="Service" />
                   <div className="flex-grow">
                     <div className="flex justify-between items-center">
-                      <div className="font-bold text-sm tracking-tight">
+                      <div className="font-bold text-sm tracking-tight dark:text-white">
                         {booking.service_name || `Service #${booking.service_id}`} 
                         <span className="text-slate-400 font-normal ml-2">by {booking.tourist_name || 'Guest'}</span>
                       </div>
-                      <div className="text-sm font-bold text-slate-900">${booking.total_price || booking.price || '0'}</div>
+                      <div className="text-sm font-bold text-slate-900 dark:text-white">${booking.total_price || booking.price || '0'}</div>
                     </div>
                     <div className="flex justify-between items-center">
                       <div className="text-xs text-slate-400 font-medium">Status: <span className={booking.status === 'confirmed' ? 'text-green-500' : 'text-amber-500'}>{booking.status}</span></div>

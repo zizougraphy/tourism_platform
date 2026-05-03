@@ -73,7 +73,7 @@ export function AutocompleteSearch({ value, onChange, className }) {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="Where to next?"
-          className="w-full bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 font-medium outline-none p-0"
+          className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium outline-none p-0"
         />
       </div>
 
@@ -83,7 +83,7 @@ export function AutocompleteSearch({ value, onChange, className }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute top-full left-0 mt-4 bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-4 z-50 w-full min-w-[300px]"
+            className="absolute top-full left-0 mt-4 bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-700 p-4 z-50 w-full min-w-[300px]"
           >
             {loading && !suggestions.cities.length && !suggestions.services.length ? (
               <div className="text-center p-4 text-sm font-medium text-slate-400">Searching...</div>
@@ -96,13 +96,13 @@ export function AutocompleteSearch({ value, onChange, className }) {
                       <div 
                         key={`pop-${city.id}`}
                         onClick={() => handleSelect(city)}
-                        className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors"
+                        className="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl cursor-pointer transition-colors"
                       >
-                        <div className="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
-                          <Map className="w-4 h-4 text-brand-600" />
+                        <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center flex-shrink-0">
+                          <Map className="w-4 h-4 text-brand-600 dark:text-brand-400" />
                         </div>
                         <div>
-                          <div className="font-bold text-sm text-slate-900">{city.name}</div>
+                          <div className="font-bold text-sm text-slate-900 dark:text-slate-100">{city.name}</div>
                           <div className="text-xs text-slate-400">{city.country}</div>
                         </div>
                       </div>
@@ -117,13 +117,13 @@ export function AutocompleteSearch({ value, onChange, className }) {
                       <div 
                         key={`city-${city.id}`}
                         onClick={() => handleSelect(city)}
-                        className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors"
+                        className="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl cursor-pointer transition-colors"
                       >
-                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                          <Map className="w-4 h-4 text-blue-600" />
+                        <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                          <Map className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                          <div className="font-bold text-sm text-slate-900">{city.name}</div>
+                          <div className="font-bold text-sm text-slate-900 dark:text-slate-100">{city.name}</div>
                           <div className="text-xs text-slate-400">{city.country}</div>
                         </div>
                       </div>
@@ -138,13 +138,13 @@ export function AutocompleteSearch({ value, onChange, className }) {
                       <div 
                         key={`srv-${service.id}`}
                         onClick={() => handleSelect(service)}
-                        className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors"
+                        className="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl cursor-pointer transition-colors"
                       >
-                        <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
-                          <Building2 className="w-4 h-4 text-orange-600" />
+                        <div className="w-8 h-8 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
+                          <Building2 className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                         </div>
                         <div>
-                          <div className="font-bold text-sm text-slate-900 line-clamp-1">{service.name}</div>
+                          <div className="font-bold text-sm text-slate-900 dark:text-slate-100 line-clamp-1">{service.name}</div>
                           <div className="text-xs text-slate-400 line-clamp-1">{service.city_name} • {service.category}</div>
                         </div>
                       </div>

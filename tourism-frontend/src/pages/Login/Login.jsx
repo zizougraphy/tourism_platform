@@ -33,7 +33,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-white dark:bg-slate-950">
       {/* Left Wall - Image/Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-brand-900 items-center justify-center p-12 overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -78,22 +78,22 @@ const Login = () => {
       </div>
 
       {/* Right Wall - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white dark:bg-slate-950">
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="w-full max-w-sm space-y-12"
         >
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight font-heading">Login to Horizon</h1>
-            <p className="text-slate-500">Don't have an account? <Link to="/register" className="text-brand-600 font-bold hover:underline">Register for free</Link></p>
+            <h1 className="text-3xl font-bold tracking-tight font-heading dark:text-white">Login to Horizon</h1>
+            <p className="text-slate-500 dark:text-slate-400">Don't have an account? <Link to="/register" className="text-brand-600 font-bold hover:underline">Register for free</Link></p>
             {error && <p className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl border border-red-100">{error}</p>}
           </div>
 
           <form className="space-y-6" onSubmit={handleEmailLogin}>
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Email Address</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input 
@@ -107,7 +107,7 @@ const Login = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Password</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input 
@@ -133,10 +133,10 @@ const Login = () => {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-slate-100" />
+              <span className="w-full border-t border-slate-100 dark:border-slate-800" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-4 text-slate-400 font-bold tracking-wider">Or continue with</span>
+              <span className="bg-white dark:bg-slate-950 px-4 text-slate-400 dark:text-slate-500 font-bold tracking-wider">Or continue with</span>
             </div>
           </div>
 
@@ -144,7 +144,7 @@ const Login = () => {
             <Button 
               variant="outline" 
               size="md" 
-              className="h-12 border-slate-200 text-slate-600 rounded-2xl"
+              className="h-12 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl dark:hover:bg-slate-800"
               onClick={handleGoogleLogin}
               type="button"
             >
@@ -156,7 +156,7 @@ const Login = () => {
               </svg>
               Google
             </Button>
-            <Button variant="outline" size="md" className="h-12 border-slate-200 text-slate-600 rounded-2xl" type="button">
+            <Button variant="outline" size="md" className="h-12 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl dark:hover:bg-slate-800" type="button">
               <Github className="w-5 h-5 mr-3" />
               Github
             </Button>

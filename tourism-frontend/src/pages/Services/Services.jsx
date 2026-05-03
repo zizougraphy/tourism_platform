@@ -45,20 +45,20 @@ const Services = () => {
   }, [selectedCategory, searchQuery, minPrice, maxPrice, minRating, sortBy]);
 
   return (
-    <div className="pt-32 pb-24 px-6 md:px-12 bg-slate-50 min-h-screen">
+    <div className="pt-32 pb-24 px-6 md:px-12 bg-slate-50 dark:bg-slate-950 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-2 font-heading">Explore Services</h1>
-            <p className="text-slate-500">Discover top-rated hotels, restaurants, and guided tours.</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 font-heading dark:text-white">Explore Services</h1>
+            <p className="text-slate-500 dark:text-slate-400">Discover top-rated hotels, restaurants, and guided tours.</p>
           </div>
           <div className="relative w-full md:w-96">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
             <input 
               type="text"
               placeholder="Search services or cities..." 
-              className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 transition-shadow"
+              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 transition-shadow text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -69,7 +69,7 @@ const Services = () => {
           {/* Filters Sidebar */}
           <aside className="w-full lg:w-72 flex-shrink-0 space-y-8">
             <div>
-              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading">
+              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading dark:text-white">
                 <Filter className="w-4 h-4" />
                 Categories
               </h4>
@@ -78,10 +78,10 @@ const Services = () => {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-colors capitalize ${
+                    className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-colors capitalize cursor-pointer ${
                       selectedCategory === cat 
                         ? 'bg-brand-600 text-white shadow-md' 
-                        : 'bg-white text-slate-600 hover:bg-slate-100'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                     }`}
                   >
                     {cat}
@@ -92,7 +92,7 @@ const Services = () => {
 
             {/* Price Filter */}
             <div>
-              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading">Price Range</h4>
+              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading dark:text-white">Price Range</h4>
               <div className="flex items-center gap-2">
                 <Input 
                   type="number" 
@@ -114,7 +114,7 @@ const Services = () => {
 
             {/* Rating Filter */}
             <div>
-              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading">Minimum Rating</h4>
+              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading dark:text-white">Minimum Rating</h4>
               <div className="space-y-2">
                 {[5, 4, 3].map(rating => (
                   <label key={rating} className="flex items-center gap-2 cursor-pointer group">
@@ -123,13 +123,13 @@ const Services = () => {
                       name="rating" 
                       checked={Number(minRating) === rating}
                       onChange={() => setMinRating(rating)}
-                      className="w-4 h-4 text-brand-600 border-slate-300 focus:ring-brand-500"
+                      className="w-4 h-4 text-brand-600 border-slate-300 dark:border-slate-600 focus:ring-brand-500"
                     />
-                    <div className="flex items-center gap-1 group-hover:text-brand-600 transition-colors">
+                    <div className="flex items-center gap-1 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                       {Array.from({length: rating}).map((_, i) => (
                         <Star key={i} className="w-4 h-4 fill-accent text-accent" />
                       ))}
-                      <span className="text-sm font-medium text-slate-600 ml-1">& up</span>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400 ml-1">& up</span>
                     </div>
                   </label>
                 ))}
@@ -138,7 +138,7 @@ const Services = () => {
 
             {/* Guests Placeholder */}
             <div>
-              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading">Guests</h4>
+              <h4 className="font-bold mb-4 flex items-center gap-2 font-heading dark:text-white">Guests</h4>
               <Input 
                 type="number" 
                 min="1"
@@ -165,11 +165,11 @@ const Services = () => {
           {/* Results Grid */}
           <div className="flex-grow">
             <div className="flex justify-between items-center mb-8">
-              <span className="text-slate-500 text-sm font-medium">{services.length} results found</span>
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+              <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">{services.length} results found</span>
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300">
                 <span>Sort by:</span>
                 <select 
-                  className="bg-transparent border-none font-bold text-slate-900 focus:ring-0 cursor-pointer outline-none"
+                  className="bg-transparent border-none font-bold text-slate-900 dark:text-white focus:ring-0 cursor-pointer outline-none"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
@@ -182,7 +182,7 @@ const Services = () => {
             </div>
 
             {loading ? (
-              <div className="text-center py-20 text-slate-500">Loading services...</div>
+              <div className="text-center py-20 text-slate-500 dark:text-slate-400">Loading services...</div>
             ) : services.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {services.map((service, i) => {
@@ -201,13 +201,13 @@ const Services = () => {
                             alt={service.name}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
-                          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-brand-600 uppercase tracking-widest shadow-sm">
+                          <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest shadow-sm">
                             {service.category || 'Service'}
                           </div>
                           <button 
                             onClick={(e) => { e.preventDefault(); toggleFavorite(service); }}
-                            className={`absolute top-4 right-4 p-2 backdrop-blur rounded-full transition-colors shadow-sm ${
-                              favorite ? 'bg-rose-50 text-rose-500' : 'bg-white/90 text-slate-400 hover:text-rose-500'
+                            className={`absolute top-4 right-4 p-2 backdrop-blur rounded-full transition-colors shadow-sm cursor-pointer ${
+                              favorite ? 'bg-rose-50 text-rose-500' : 'bg-white/90 dark:bg-slate-800/90 text-slate-400 hover:text-rose-500'
                             }`}
                           >
                             <Heart className="w-5 h-5" fill={favorite ? "currentColor" : "none"} />
@@ -217,22 +217,22 @@ const Services = () => {
                         <div className="p-6 space-y-4 flex flex-col flex-grow">
                           <div className="flex justify-between items-start gap-4">
                             <Link to={`/services/${service.id}`}>
-                              <h3 className="text-xl font-bold hover:text-brand-600 transition-colors line-clamp-1 font-heading">{service.name}</h3>
+                              <h3 className="text-xl font-bold hover:text-brand-600 dark:hover:text-brand-400 transition-colors line-clamp-1 font-heading dark:text-white">{service.name}</h3>
                             </Link>
                             <div className="flex items-center gap-1 flex-shrink-0">
                               <Star className="w-4 h-4 fill-accent text-accent" />
-                              <span className="font-bold text-sm tracking-tight">{service.rating || '4.5'}</span>
+                              <span className="font-bold text-sm tracking-tight dark:text-slate-200">{service.rating || '4.5'}</span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+                          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
                             <MapPin className="w-4 h-4" />
                             <span>{service.location || service.city_name || 'Unknown Location'}</span>
                           </div>
 
-                          <div className="pt-4 mt-auto flex items-center justify-between border-t border-slate-50">
+                          <div className="pt-4 mt-auto flex items-center justify-between border-t border-slate-50 dark:border-slate-700">
                             <div>
-                              <span className="text-2xl font-bold text-slate-900">${service.price}</span>
+                              <span className="text-2xl font-bold text-slate-900 dark:text-white">${service.price}</span>
                               <span className="text-slate-400 text-sm font-medium"> / night</span>
                             </div>
                             <Link to={`/services/${service.id}`}>
@@ -246,12 +246,12 @@ const Services = () => {
                 })}
               </div>
             ) : (
-              <div className="text-center py-24 bg-white rounded-[2rem] border-2 border-dashed border-slate-100">
-                <div className="mb-4 inline-flex p-4 bg-slate-50 rounded-full">
-                  <Search className="w-8 h-8 text-slate-300" />
+              <div className="text-center py-24 bg-white dark:bg-slate-800 rounded-[2rem] border-2 border-dashed border-slate-100 dark:border-slate-700">
+                <div className="mb-4 inline-flex p-4 bg-slate-50 dark:bg-slate-700 rounded-full">
+                  <Search className="w-8 h-8 text-slate-300 dark:text-slate-500" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2 font-heading">No services found</h3>
-                <p className="text-slate-500">Try adjusting your filters or search terms.</p>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 font-heading">No services found</h3>
+                <p className="text-slate-500 dark:text-slate-400">Try adjusting your filters or search terms.</p>
                 <Button variant="secondary" className="mt-6" onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}>
                   Clear all filters
                 </Button>

@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Outfit", sans-serif;
@@ -23,7 +26,11 @@
 
 @layer base {
   body {
-    @apply font-sans text-slate-900 bg-white antialiased;
+    @apply font-sans text-slate-900 bg-white antialiased transition-colors duration-300;
+  }
+
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
   }
 
   h1,
@@ -40,8 +47,16 @@
   @apply bg-white/70 backdrop-blur-md border border-white/20;
 }
 
+.dark .glass-morphism {
+  @apply bg-slate-800/70 border-slate-700/30;
+}
+
 .text-gradient {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-brand-400;
+}
+
+.dark .text-gradient {
+  @apply from-brand-400 to-brand-300;
 }
 
 /* Custom Scrollbar */
@@ -55,4 +70,24 @@
 
 ::-webkit-scrollbar-thumb {
   @apply bg-slate-200 rounded-full hover:bg-brand-200 transition-colors;
+}
+
+.dark ::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-slate-700 hover:bg-slate-600;
+}
+
+/* Smooth theme transition for key elements */
+* {
+  transition-property: background-color, border-color;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* Exclude elements that have their own transition needs */
+a, button, img, video, canvas, svg, [class*="motion"], [class*="animate"] {
+  transition-property: none;
 }

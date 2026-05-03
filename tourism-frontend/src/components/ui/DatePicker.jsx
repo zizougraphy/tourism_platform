@@ -33,11 +33,11 @@ export function DatePicker({ date, setDate, className, placeholder = "Add dates"
   return (
     <div className={cn("relative w-full", className)} ref={containerRef}>
       <div 
-        className="flex items-center gap-3 bg-transparent border-none focus:ring-0 text-slate-900 font-medium outline-none cursor-pointer w-full"
+        className="flex items-center gap-3 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 font-medium outline-none cursor-pointer w-full"
         onClick={() => setIsOpen(!isOpen)}
       >
         <CalendarIcon className="text-brand-500 w-5 h-5 flex-shrink-0" />
-        <span className={cn("truncate", date?.from ? "text-slate-900" : "text-slate-400")}>
+        <span className={cn("truncate", date?.from ? "text-slate-900 dark:text-slate-100" : "text-slate-400 dark:text-slate-500")}>
           {displayText}
         </span>
       </div>
@@ -49,7 +49,7 @@ export function DatePicker({ date, setDate, className, placeholder = "Add dates"
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             className={cn(
-              "absolute top-full mt-4 bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-4 z-50",
+              "absolute top-full mt-4 bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-700 p-4 z-50",
               align === "left" ? "left-0" : "right-0"
             )}
           >

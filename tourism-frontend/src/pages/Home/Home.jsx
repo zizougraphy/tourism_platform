@@ -71,12 +71,12 @@ export default function Home() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative z-50 bg-white p-2 md:p-4 rounded-3xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto border border-white/20 glass-morphism pointer-events-auto"
+            className="relative z-50 bg-white dark:bg-slate-800/90 p-2 md:p-4 rounded-3xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto border border-white/20 dark:border-slate-700/50 glass-morphism pointer-events-auto"
           >
-            <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-slate-100 px-2">
+            <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700 px-2">
               <AutocompleteSearch value={searchQuery} onChange={setSearchQuery} />
             </div>
-            <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-slate-100 px-2">
+            <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700 px-2">
               <DatePicker date={dateRange} setDate={setDateRange} placeholder="Add dates" />
             </div>
             <div className="flex-1 w-full px-2">
@@ -116,15 +116,15 @@ export default function Home() {
 
       {/* Popular Destinations */}
       {cities.length > 0 && (
-        <section className="py-24 px-6 bg-slate-50">
+        <section className="py-24 px-6 bg-slate-50 dark:bg-slate-900">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
               <div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4 font-heading text-slate-900">Popular Destinations</h2>
-                <p className="text-slate-500 max-w-xl">Explore our hand-picked selection of the world's most captivating places.</p>
+                <h2 className="text-4xl md:text-5xl font-bold mb-4 font-heading text-slate-900 dark:text-white">Popular Destinations</h2>
+                <p className="text-slate-500 dark:text-slate-400 max-w-xl">Explore our hand-picked selection of the world's most captivating places.</p>
               </div>
               <Link to="/services">
-                <Button variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-full px-8">
+                <Button variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-full px-8">
                   View All Destinations
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
@@ -164,12 +164,12 @@ export default function Home() {
 
       {/* Featured Experiences */}
       {services.length > 0 && (
-        <section className="py-24 px-6">
+        <section className="py-24 px-6 dark:bg-slate-950">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
               <div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4 font-heading text-slate-900">Featured Experiences</h2>
-                <p className="text-slate-500 max-w-xl">From luxury stays to authentic local tours, find your next adventure.</p>
+                <h2 className="text-4xl md:text-5xl font-bold mb-4 font-heading text-slate-900 dark:text-white">Featured Experiences</h2>
+                <p className="text-slate-500 dark:text-slate-400 max-w-xl">From luxury stays to authentic local tours, find your next adventure.</p>
               </div>
               <Link to="/services">
                 <Button variant="accent" className="rounded-full px-8">
@@ -187,35 +187,35 @@ export default function Home() {
                   transition={{ delay: i * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="flex flex-col h-full border-none shadow-lg hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden bg-white">
-                    <Link to={`/services/\${service.id}`} className="relative aspect-video overflow-hidden">
+                  <Card className="flex flex-col h-full border-none shadow-lg hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden bg-white dark:bg-slate-800">
+                    <Link to={`/services/${service.id}`} className="relative aspect-video overflow-hidden">
                       <img
                         src={service.image_url || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=800'}
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                         alt={service.name}
                       />
-                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-brand-600 uppercase tracking-widest shadow-sm">
+                      <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest shadow-sm">
                         {service.category}
                       </div>
                     </Link>
                     <div className="p-6 flex flex-col flex-grow space-y-4">
                       <div className="flex justify-between items-start gap-4">
-                        <Link to={`/services/\${service.id}`}>
-                          <h3 className="font-bold text-slate-900 hover:text-brand-600 transition-colors line-clamp-1 font-heading">{service.name}</h3>
+                        <Link to={`/services/${service.id}`}>
+                          <h3 className="font-bold text-slate-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 transition-colors line-clamp-1 font-heading">{service.name}</h3>
                         </Link>
                         <div className="flex items-center gap-1 shrink-0">
                           <Star className="w-3 h-3 fill-accent text-accent" />
-                          <span className="font-bold text-xs">{service.rating}</span>
+                          <span className="font-bold text-xs dark:text-slate-200">{service.rating}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
                         <MapPin className="w-3 h-3" />
                         <span className="line-clamp-1">{service.city_name}</span>
                       </div>
-                      <div className="pt-4 mt-auto flex items-center justify-between border-t border-slate-50">
-                        <div className="font-bold text-slate-900">\${service.price}</div>
-                        <Link to={`/services/\${service.id}`}>
-                          <Button size="sm" variant="ghost" className="text-brand-600 font-bold hover:bg-brand-50 rounded-xl">Details</Button>
+                      <div className="pt-4 mt-auto flex items-center justify-between border-t border-slate-50 dark:border-slate-700">
+                        <div className="font-bold text-slate-900 dark:text-white">${service.price}</div>
+                        <Link to={`/services/${service.id}`}>
+                          <Button size="sm" variant="ghost" className="text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-50 dark:hover:bg-brand-950 rounded-xl">Details</Button>
                         </Link>
                       </div>
                     </div>
@@ -267,14 +267,14 @@ export default function Home() {
                 alt="Travel experiences"
               />
             </motion.div>
-            <div className="absolute -bottom-10 -left-10 bg-white p-10 rounded-[3rem] shadow-2xl max-w-[320px] hidden xl:block text-slate-900">
+            <div className="absolute -bottom-10 -left-10 bg-white dark:bg-slate-800 p-10 rounded-[3rem] shadow-2xl max-w-[320px] hidden xl:block text-slate-900 dark:text-white">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-green-100 p-3 rounded-2xl">
-                  <Clock className="w-8 h-8 text-green-600" />
+                <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-2xl">
+                  <Clock className="w-8 h-8 text-green-600 dark:text-green-400" />
                 </div>
                 <div className="font-bold text-xl font-heading">Lightning Fast</div>
               </div>
-              <p className="text-slate-500 leading-relaxed">Book your entire dream trip in less than 5 minutes. No hassle, just horizons.</p>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed">Book your entire dream trip in less than 5 minutes. No hassle, just horizons.</p>
             </div>
           </div>
         </div>
@@ -282,7 +282,7 @@ export default function Home() {
 
       {/* CTA Banner */}
       <section className="py-12 px-6">
-        <div className="max-w-7xl mx-auto bg-brand-600 rounded-[4rem] p-12 md:p-24 text-center text-white relative overflow-hidden shadow-2xl shadow-brand-200/50">
+        <div className="max-w-7xl mx-auto bg-brand-600 rounded-[4rem] p-12 md:p-24 text-center text-white relative overflow-hidden shadow-2xl shadow-brand-200/50 dark:shadow-brand-950/50">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-400/20 rounded-full blur-[100px] -mr-64 -mt-64" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[100px] -ml-64 -mb-64" />
 

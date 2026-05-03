@@ -31,27 +31,27 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-white dark:bg-slate-950">
       {/* Form Side */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white overflow-y-auto">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white dark:bg-slate-950 overflow-y-auto">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="w-full max-w-sm space-y-10 py-12"
         >
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight font-heading">Create your account</h1>
-            <p className="text-slate-500">Already have an account? <Link to="/login" className="text-brand-600 font-bold hover:underline">Sign in</Link></p>
+            <h1 className="text-3xl font-bold tracking-tight font-heading dark:text-white">Create your account</h1>
+            <p className="text-slate-500 dark:text-slate-400">Already have an account? <Link to="/login" className="text-brand-600 font-bold hover:underline">Sign in</Link></p>
             {error && <p className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl border border-red-100">{error}</p>}
           </div>
 
           <div className="space-y-6">
             {/* Role Selector */}
-            <div className="flex p-1 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex p-1 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800">
               <button 
                 onClick={() => setRole('tourist')}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
-                  role === 'tourist' ? 'bg-white shadow-sm text-brand-600' : 'text-slate-400 hover:text-slate-600'
+                  role === 'tourist' ? 'bg-white dark:bg-slate-800 shadow-sm text-brand-600 dark:text-brand-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -60,7 +60,7 @@ const Register = () => {
               <button 
                 onClick={() => setRole('service_provider')}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
-                  role === 'service_provider' ? 'bg-white shadow-sm text-brand-600' : 'text-slate-400 hover:text-slate-600'
+                  role === 'service_provider' ? 'bg-white dark:bg-slate-800 shadow-sm text-brand-600 dark:text-brand-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                 }`}
               >
                 <ShieldCheck className="w-4 h-4" />
@@ -70,7 +70,7 @@ const Register = () => {
 
             <form className="space-y-5" onSubmit={handleRegister}>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Full Name</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Full Name</label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input 
@@ -83,7 +83,7 @@ const Register = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Email Address</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input 
@@ -97,7 +97,7 @@ const Register = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Password</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input 
@@ -113,8 +113,8 @@ const Register = () => {
 
               <div className="flex items-start gap-3 py-2">
                 <input type="checkbox" className="mt-1 w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500" required />
-                <p className="text-sm text-slate-500 leading-snug">
-                  I agree to the <a href="#" className="font-bold text-slate-700 hover:underline">Terms of Service</a> and <a href="#" className="font-bold text-slate-700 hover:underline">Privacy Policy</a>.
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-snug">
+                  I agree to the <a href="#" className="font-bold text-slate-700 dark:text-slate-300 hover:underline">Terms of Service</a> and <a href="#" className="font-bold text-slate-700 dark:text-slate-300 hover:underline">Privacy Policy</a>.
                 </p>
               </div>
 

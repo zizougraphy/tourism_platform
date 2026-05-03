@@ -5,19 +5,19 @@ import { Card } from '../../components/ui/Card';
 
 const About = () => {
   return (
-    <div className="pt-24 min-h-screen">
+    <div className="pt-24 min-h-screen dark:bg-slate-950">
       {/* Hero */}
       <section className="relative py-32 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-slate-50 z-[-1]" />
+        <div className="absolute inset-0 bg-slate-50 dark:bg-slate-900 z-[-1]" />
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-6 py-2 bg-brand-50 rounded-full border border-brand-100 italic font-medium text-brand-600">
+            <div className="inline-flex items-center gap-2 px-6 py-2 bg-brand-50 dark:bg-brand-900/30 rounded-full border border-brand-100 dark:border-brand-800 italic font-medium text-brand-600 dark:text-brand-400">
               Our Journey Since 2018
             </div>
-            <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-[0.9] font-heading">
+            <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-[0.9] font-heading dark:text-white">
               Connecting Souls to <span className="text-gradient">Horizons.</span>
             </h1>
-            <p className="text-slate-500 text-xl leading-relaxed max-w-xl">
+            <p className="text-slate-500 dark:text-slate-400 text-xl leading-relaxed max-w-xl">
               Horizon was born from a simple belief: travel isn't just about the destination, it's about the depth of connection and the quality of every single moment.
             </p>
             <div className="flex gap-4">
@@ -56,10 +56,10 @@ const About = () => {
       </section>
 
       {/* Narrative */}
-      <section className="py-24 px-6">
+      <section className="py-24 px-6 dark:bg-slate-950">
         <div className="max-w-3xl mx-auto text-center space-y-12">
-          <h2 className="text-4xl md:text-5xl font-bold font-heading">The Horizon Creed</h2>
-          <div className="space-y-6 text-slate-600 text-lg leading-loose text-left">
+          <h2 className="text-4xl md:text-5xl font-bold font-heading dark:text-white">The Horizon Creed</h2>
+          <div className="space-y-6 text-slate-600 dark:text-slate-400 text-lg leading-loose text-left">
             <p>
               Travel is the ultimate bridge between cultures. We believe that by providing a platform that prioritizes trust, beauty, and seamless integration, we facilitate a world that is more connected, more empathetic, and infinitely more inspired.
             </p>
@@ -74,9 +74,9 @@ const About = () => {
       </section>
 
       {/* Values */}
-      <section className="py-24 px-6 bg-slate-50">
+      <section className="py-24 px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto space-y-16">
-          <h2 className="text-4xl font-bold text-center font-heading">Our Core Values</h2>
+          <h2 className="text-4xl font-bold text-center font-heading dark:text-white">Our Core Values</h2>
           <div className="grid md:grid-cols-3 gap-10">
             {[
               { title: 'Radical Transparency', desc: 'Real reviews, verified partners, and no hidden fees. Ever.', icon: ShieldCheck },
@@ -84,11 +84,11 @@ const About = () => {
               { title: 'Global Empathy', desc: 'Travel is a human experience. We design for connection across cultures.', icon: Heart },
             ].map((value, i) => (
               <Card key={i} className="p-10 border-none shadow-sm space-y-6 rounded-[2.5rem]">
-                <div className="bg-brand-50 w-16 h-16 rounded-2xl flex items-center justify-center text-brand-600">
+                <div className="bg-brand-50 dark:bg-brand-900/30 w-16 h-16 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400">
                   <value.icon className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold font-heading">{value.title}</h3>
-                <p className="text-slate-500 leading-relaxed">{value.desc}</p>
+                <h3 className="text-2xl font-bold font-heading dark:text-white">{value.title}</h3>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{value.desc}</p>
               </Card>
             ))}
           </div>

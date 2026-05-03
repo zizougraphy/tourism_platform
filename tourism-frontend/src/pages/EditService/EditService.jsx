@@ -72,7 +72,7 @@ export default function EditService() {
   if (fetching) return <div className="flex bg-slate-50 min-h-screen items-center justify-center">Loading...</div>;
 
   return (
-    <div className="flex bg-slate-50 min-h-screen">
+    <div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen">
       <Sidebar />
       
       <main className="flex-grow p-8 md:p-12 max-w-5xl mx-auto">
@@ -82,8 +82,8 @@ export default function EditService() {
             <ChevronRight className="w-4 h-4" />
             <span className="text-brand-600 font-bold">Edit Service</span>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight font-heading">Update Your Offering</h1>
-          <p className="text-slate-500 mt-2">Modify your listing details to keep them accurate and attractive.</p>
+          <h1 className="text-4xl font-bold tracking-tight font-heading dark:text-white">Update Your Offering</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Modify your listing details to keep them accurate and attractive.</p>
         </header>
 
         <form className="space-y-12" onSubmit={handleSubmit}>
@@ -92,19 +92,19 @@ export default function EditService() {
 
           {/* Basic Info */}
           <section className="space-y-6">
-            <h3 className="text-xl font-bold flex items-center gap-2 font-heading">
+            <h3 className="text-xl font-bold flex items-center gap-2 font-heading dark:text-white">
               <Info className="w-5 h-5 text-brand-600" />
               General Information
             </h3>
-            <Card className="p-8 border-none shadow-sm space-y-6 rounded-[2rem]">
+            <Card className="p-8 border-none shadow-sm space-y-6 rounded-[2rem] dark:bg-slate-900">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Service Title</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Service Title</label>
                 <Input name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Ocean View Luxury Suite" />
               </div>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Category</label>
-                  <select name="category" value={formData.category} onChange={handleChange} className="w-full h-12 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium text-slate-700 cursor-pointer outline-none">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Category</label>
+                  <select name="category" value={formData.category} onChange={handleChange} className="w-full h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium text-slate-700 dark:text-slate-200 cursor-pointer outline-none">
                     <option value="hotel">Hotel</option>
                     <option value="restaurant">Restaurant</option>
                     <option value="guide">Guide / Tour</option>
@@ -113,7 +113,7 @@ export default function EditService() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Starting Price ($)</label>
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Starting Price ($)</label>
                   <div className="relative">
                     <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <Input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="250" className="pl-12" />
@@ -121,12 +121,12 @@ export default function EditService() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Description</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
                 <textarea 
                   name="description" 
                   value={formData.description} 
                   onChange={handleChange}
-                  className="w-full min-h-[150px] rounded-2xl border border-slate-200 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 outline-none font-medium text-slate-700"
+                  className="w-full min-h-[150px] rounded-2xl border border-slate-200 dark:border-slate-800 bg-transparent p-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 outline-none font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400"
                   placeholder="Describe the unique experience you offer..."
                 ></textarea>
               </div>
@@ -135,13 +135,13 @@ export default function EditService() {
 
           {/* Media */}
           <section className="space-y-6">
-            <h3 className="text-xl font-bold flex items-center gap-2 font-heading">
+            <h3 className="text-xl font-bold flex items-center gap-2 font-heading dark:text-white">
               <Image className="w-5 h-5 text-brand-600" />
               Media Gallery
             </h3>
-            <Card className="p-8 border-none shadow-sm space-y-6 rounded-[2rem]">
+            <Card className="p-8 border-none shadow-sm space-y-6 rounded-[2rem] dark:bg-slate-900">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Primary Image URL</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Primary Image URL</label>
                 <Input name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://images.unsplash.com/..." />
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4">
@@ -153,7 +153,7 @@ export default function EditService() {
                     </button>
                   </div>
                 ) : (
-                  <div className="aspect-square rounded-[2rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-8 text-center cursor-pointer hover:bg-slate-50 transition-colors">
+                  <div className="aspect-square rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                     <Plus className="w-8 h-8 text-slate-300 mb-2" />
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Add Image</span>
                   </div>
@@ -162,7 +162,7 @@ export default function EditService() {
             </Card>
           </section>
 
-          <footer className="pt-8 flex justify-end gap-4 border-t border-slate-200">
+          <footer className="pt-8 flex justify-end gap-4 border-t border-slate-200 dark:border-slate-800">
             <Button type="button" variant="outline" size="lg" className="px-10" onClick={() => navigate('/dashboard/services')}>Cancel</Button>
             <Button type="submit" variant="primary" size="lg" className="px-12" disabled={loading}>
               <Save className="w-5 h-5 mr-2" />

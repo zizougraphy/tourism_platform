@@ -4,7 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>tourism-frontend</title>
+    <meta name="description" content="Horizon — Discover curated journeys, trusted stays, and unforgettable travel experiences." />
+    <title>Horizon | Explore. Dream. Discover.</title>
+    <script>
+      // Prevent FOUC: apply dark class before first paint
+      (function() {
+        var t = localStorage.getItem('horizon-theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
