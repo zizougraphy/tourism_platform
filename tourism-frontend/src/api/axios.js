@@ -75,10 +75,35 @@ export const createService      = (data)      => API.post('/provider/services', 
 export const updateService      = (id, data)  => API.put(`/provider/services/${id}`, data);
 export const deleteService      = (id)        => API.delete(`/provider/services/${id}`);
 
-// ── Admin 
-export const getProviders    = ()   => API.get('/admin/providers');
-export const approveProvider = (id) => API.patch(`/admin/providers/${id}/approve`);
-export const rejectProvider  = (id) => API.patch(`/admin/providers/${id}/reject`);
-export const getStats        = ()   => API.get('/admin/stats');
+// ── Admin – Core
+export const getAdminStats       = ()               => API.get('/admin/stats');
+export const getAdminAnalytics   = ()               => API.get('/admin/analytics');
+
+// ── Admin – Providers
+export const getProviders            = (params)     => API.get('/admin/providers', { params });
+export const approveProvider         = (id)         => API.patch(`/admin/providers/${id}/approve`);
+export const rejectProvider          = (id)         => API.patch(`/admin/providers/${id}/reject`);
+export const updateProviderStatus    = (id, data)   => API.patch(`/admin/providers/${id}/status`, data);
+
+// ── Admin – Users
+export const getAdminUsers           = (params)     => API.get('/admin/users', { params });
+export const updateAdminUserStatus   = (id, data)   => API.patch(`/admin/users/${id}/status`, data);
+export const deleteAdminUser         = (id)         => API.delete(`/admin/users/${id}`);
+
+// ── Admin – Services
+export const getAdminServices        = (params)     => API.get('/admin/services', { params });
+export const deleteAdminService      = (id)         => API.delete(`/admin/services/${id}`);
+export const toggleAdminService      = (id)         => API.patch(`/admin/services/${id}/toggle`);
+
+// ── Admin – Bookings
+export const getAdminBookings        = (params)     => API.get('/admin/bookings', { params });
+export const cancelAdminBooking      = (id)         => API.patch(`/admin/bookings/${id}/cancel`);
+
+// ── Admin – Reviews
+export const getAdminReviews         = (params)     => API.get('/admin/reviews', { params });
+export const deleteAdminReview       = (id)         => API.delete(`/admin/reviews/${id}`);
+
+// ── Legacy alias (keep backward compat)
+export const getStats = getAdminStats;
 
 export default API;

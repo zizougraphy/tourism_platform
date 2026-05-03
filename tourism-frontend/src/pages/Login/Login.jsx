@@ -20,7 +20,8 @@ const Login = () => {
     setError('');
     try {
       const data = await login({ email, password });
-      navigate(data.user?.role === 'service_provider' ? '/dashboard' : '/');
+      const role = data.user?.role;
+      navigate(role === 'admin' ? '/admin' : role === 'service_provider' ? '/dashboard' : '/');
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to login');
     } finally {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User as UserIcon, Heart, Calendar, LogOut, LayoutDashboard, Sun, Moon } from 'lucide-react';
+import { Menu, X, User as UserIcon, Heart, Calendar, LogOut, LayoutDashboard, Sun, Moon, Shield } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -133,10 +133,19 @@ const Navbar = () => {
                       className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 py-2 z-50 overflow-hidden"
                     >
                       <div className="px-4 py-3 border-b border-slate-50 dark:border-slate-700 mb-1">
-                        <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{user?.role === 'service_provider' ? 'Provider' : 'Guest'}</div>
+                        <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                          {user?.role === 'admin' ? 'Admin' : user?.role === 'service_provider' ? 'Provider' : 'Guest'}
+                        </div>
                         <div className="text-sm font-bold truncate text-slate-700 dark:text-slate-200">{user?.email}</div>
                       </div>
                       
+                      {user?.role === 'admin' && (
+                        <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 transition-colors">
+                          <Shield className="w-4 h-4" />
+                          <span className="font-medium">Admin Panel</span>
+                        </Link>
+                      )}
+
                       {user?.role === 'service_provider' && (
                         <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors">
                           <LayoutDashboard className="w-4 h-4 text-brand-500" />
@@ -148,7 +157,7 @@ const Navbar = () => {
                         <UserIcon className="w-4 h-4 text-brand-500" />
                         <span className="font-medium">My Profile</span>
                       </Link>
-                      {user?.role !== 'service_provider' && (
+                      {user?.role === 'tourist' && (
                         <>
                           <Link to="/bookings" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors">
                             <Calendar className="w-4 h-4 text-brand-500" />
