@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-export function DatePicker({ date, setDate, className, placeholder = "Add dates", align = "left" }) {
+export function DatePicker({ date, setDate, className, placeholder = "Add dates", align = "left", mode = "range" }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -22,13 +22,29 @@ export function DatePicker({ date, setDate, className, placeholder = "Add dates"
 
   // Format display text
   let displayText = placeholder;
-  if (date?.from) {
+  if (mode === 'single' && date?.from) {
+    displayText = format(date.from, "LLL dd, y");
+  } else if (mode === 'range' && date?.from) {
     if (date.to) {
       displayText = `${format(date.from, "LLL dd, y")} - ${format(date.to, "LLL dd, y")}`;
     } else {
       displayText = format(date.from, "LLL dd, y");
     }
   }
+
+  // Handle single mode selection wrapping
+  const handleSelect = (selectedData) => {
+    if (mode === 'single') {
+      // In single mode, react-day-picker returns a Date object. Wrap it in { from: Date } to match our expected shape.
+      setDate({ from: selectedData, to: undefined });
+      setIsOpen(false);
+    } else {
+      setDate(selectedData);
+    }
+  };
+
+  // Get current selected value for DayPicker
+  const selectedValue = mode === 'single' ? date?.from : date;
 
   return (
     <div className={cn("relative w-full", className)} ref={containerRef}>
@@ -54,10 +70,10 @@ export function DatePicker({ date, setDate, className, placeholder = "Add dates"
             )}
           >
             <DayPicker
-              mode="range"
+              mode={mode}
               defaultMonth={date?.from || new Date()}
-              selected={date}
-              onSelect={setDate}
+              selected={selectedValue}
+              onSelect={handleSelect}
               numberOfMonths={1}
               disabled={{ before: new Date() }}
               className="font-sans"

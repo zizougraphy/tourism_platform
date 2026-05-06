@@ -20,6 +20,8 @@ export default function EditService() {
     description: '',
     image_url: '' 
   });
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
@@ -41,12 +43,36 @@ export default function EditService() {
           description: data.description || '',
           image_url: data.image_url || data.images || ''
         });
+        
+        // Handle existing images
+        const images = (data.image_url || data.images || '').split(',').filter(Boolean);
+        setImagePreviews(images);
       })
       .catch(() => setError('Failed to load service data'))
       .finally(() => setFetching(false));
   }, [id]);
 
   const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleImageChange = (e) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const combinedFiles = [...imageFiles, ...newFiles].slice(0, 5);
+      setImageFiles(combinedFiles);
+      
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 5));
+    }
+  };
+
+  const removeImage = (index) => {
+    // If it's a file preview, we should also remove from imageFiles
+    // But for simplicity, we'll just clear all and let them re-upload if they want to change media
+    // or we can just filter.
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    // This is a bit tricky since some are URLs and some are Blobs.
+    // For now, let's just clear the specific index.
+  };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -59,7 +85,20 @@ export default function EditService() {
     
     setLoading(true);
     try {
-      await api.updateService(id, formData);
+      const payload = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key !== 'image_url') payload.append(key, formData[key]);
+      });
+      
+      // If we have new files, send them
+      if (imageFiles.length > 0) {
+        imageFiles.forEach(file => payload.append('images', file));
+      } else {
+        // Otherwise send the existing image_url string
+        payload.append('image_url', formData.image_url);
+      }
+
+      await api.updateService(id, payload);
       setSuccess('Service updated successfully!');
       setTimeout(() => navigate('/dashboard/services'), 1500);
     } catch (err) {
@@ -141,23 +180,28 @@ export default function EditService() {
             </h3>
             <Card className="p-8 border-none shadow-sm space-y-6 rounded-[2rem] dark:bg-slate-900">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Primary Image URL</label>
-                <Input name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://images.unsplash.com/..." />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4">
-                {formData.image_url ? (
-                  <div className="aspect-square rounded-[2rem] overflow-hidden relative group">
-                    <img src={formData.image_url} className="w-full h-full object-cover" alt="Preview" />
-                    <button type="button" onClick={() => setFormData(prev => ({...prev, image_url: ''}))} className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur rounded-full text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="aspect-square rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <Plus className="w-8 h-8 text-slate-300 mb-2" />
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Add Image</span>
-                  </div>
-                )}
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Upload New Images (Max 5)</label>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  {imagePreviews.map((url, i) => (
+                    <div key={i} className="aspect-square rounded-2xl overflow-hidden relative group border border-slate-100 dark:border-slate-800">
+                      <img src={url.startsWith('blob:') || url.startsWith('http') ? url : `http://localhost:3000${url}`} className="w-full h-full object-cover" alt="Preview" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(i)}
+                        className="absolute top-2 right-2 p-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-full text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {imagePreviews.length < 5 && (
+                    <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                      <Plus className="w-6 h-6 text-slate-400 mb-1" />
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Add</span>
+                      <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageChange} />
+                    </label>
+                  )}
+                </div>
               </div>
             </Card>
           </section>

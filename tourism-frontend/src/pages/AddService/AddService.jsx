@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Image, MapPin, DollarSign, List, Info, ChevronRight, Save, Trash2, Plus } from 'lucide-react';
+import { Image, MapPin, DollarSign, List, Info, ChevronRight, Save, Trash2, Plus, X, Calendar as CalendarIcon } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import * as api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
+
+const AMENITY_PRESETS = {
+  hotel: ['WiFi', 'Pool', 'Breakfast', 'Spa', 'Gym', 'Parking', 'Beach Access', 'Room Service', 'Air Conditioning'],
+  restaurant: ['WiFi', 'Outdoor Seating', 'Live Music', 'Halal', 'Vegan Options', 'Private Dining', 'Delivery'],
+  guide: ['Transport Included', 'Lunch Included', 'Equipment Provided', 'Multilingual Guide', 'Small Group'],
+  activity: ['Equipment Included', 'Guide Included', 'Insurance', 'Photos Included', 'Transfer Included'],
+  transport: ['WiFi', 'Air Conditioning', 'Luggage Space', 'Child Seat', 'Meet & Greet'],
+};
 
 export default function AddService() {
   const navigate = useNavigate();
@@ -17,8 +25,16 @@ export default function AddService() {
     city_id: '', 
     price: '', 
     description: '',
-    image_url: '' 
+    location_address: '',
   });
+  // Multi-image support (File objects)
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  
+  // Amenities
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [customAmenity, setCustomAmenity] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -29,6 +45,48 @@ export default function AddService() {
 
   const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
+  const toggleAmenity = (amenity) => {
+    setSelectedAmenities(prev => 
+      prev.includes(amenity) ? prev.filter(a => a !== amenity) : [...prev, amenity]
+    );
+  };
+
+  const addCustomAmenity = () => {
+    if (customAmenity.trim() && !selectedAmenities.includes(customAmenity.trim())) {
+      setSelectedAmenities(prev => [...prev, customAmenity.trim()]);
+      setCustomAmenity('');
+    }
+  };
+
+  const handleImageChange = (e) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const combinedFiles = [...imageFiles, ...newFiles].slice(0, 5); // Limit to 5
+      setImageFiles(combinedFiles);
+      
+      // Create preview URLs
+      const previews = combinedFiles.map(file => URL.createObjectURL(file));
+      setImagePreviews(previews);
+    }
+  };
+
+  const removeImage = (idx) => {
+    const newFiles = [...imageFiles];
+    newFiles.splice(idx, 1);
+    setImageFiles(newFiles);
+    
+    const newPreviews = [...imagePreviews];
+    newPreviews.splice(idx, 1);
+    setImagePreviews(newPreviews);
+  };
+
+  // Availability
+  const [availability, setAvailability] = useState({
+    startDate: '',
+    endDate: '',
+    capacity: 10
+  });
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setError(''); setSuccess('');
@@ -37,10 +95,41 @@ export default function AddService() {
       setError('Name, price and city are required.'); 
       return; 
     }
-    
+
     setLoading(true);
     try {
-      await api.createService(formData);
+      const payload = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (formData[key]) payload.append(key, formData[key]);
+      });
+      
+      payload.append('amenities', JSON.stringify(selectedAmenities));
+      
+      imageFiles.forEach(file => {
+        payload.append('images', file);
+      });
+
+      const res = await api.createService(payload);
+      const newServiceId = res.data.data.id;
+
+      // Handle availability if provided
+      if (availability.startDate && availability.endDate && availability.capacity) {
+        const start = new Date(availability.startDate);
+        const end = new Date(availability.endDate);
+        const slots = [];
+        
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          slots.push({
+            date: d.toISOString().split('T')[0],
+            total_slots: parseInt(availability.capacity)
+          });
+        }
+        
+        if (slots.length > 0) {
+          await api.setBulkAvailability({ service_id: newServiceId, slots });
+        }
+      }
+
       setSuccess('Service published successfully!');
       setTimeout(() => navigate('/dashboard/services'), 1500);
     } catch (err) {
@@ -49,6 +138,8 @@ export default function AddService() {
       setLoading(false); 
     }
   };
+
+  const currentAmenityPresets = AMENITY_PRESETS[formData.category] || AMENITY_PRESETS.hotel;
 
   return (
     <div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen">
@@ -131,27 +222,82 @@ export default function AddService() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Full Address (Optional)</label>
-                  <Input placeholder="123 Coastal Road, Oia" />
+                  <Input name="location_address" value={formData.location_address} onChange={handleChange} placeholder="123 Coastal Road, Oia" />
                 </div>
               </div>
               <div className="space-y-4">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Key Amenities (Optional)</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                  Key {formData.category === 'restaurant' ? 'Features' : 'Amenities'}
+                </label>
                 <div className="flex flex-wrap gap-3">
-                  {['WiFi', 'Pool', 'Breakfast', 'Spa', 'Gym', 'Parking', 'Beach Access'].map(item => (
-                    <button type="button" key={item} className="px-5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-brand-500 hover:text-brand-600 transition-all">
-                      {item}
+                  {currentAmenityPresets.map(item => (
+                    <button 
+                      type="button" 
+                      key={item} 
+                      onClick={() => toggleAmenity(item)}
+                      className={`px-5 py-2 border rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                        selectedAmenities.includes(item) 
+                          ? 'bg-brand-600 text-white border-brand-600 shadow-md shadow-brand-500/20' 
+                          : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-brand-500 hover:text-brand-600'
+                      }`}
+                    >
+                      {selectedAmenities.includes(item) && '✓ '}{item}
                     </button>
                   ))}
-                  <button type="button" className="flex items-center gap-2 px-5 py-2 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-900/50 rounded-xl text-sm font-bold text-brand-600 dark:text-brand-400">
-                    <Plus className="w-4 h-4" />
-                    Add Custom
-                  </button>
+                </div>
+                {/* Custom amenity */}
+                <div className="flex gap-2 items-center">
+                  <Input 
+                    value={customAmenity} 
+                    onChange={(e) => setCustomAmenity(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomAmenity(); }}}
+                    placeholder="Add custom amenity..." 
+                    className="flex-grow"
+                  />
+                  <Button type="button" variant="outline" onClick={addCustomAmenity} className="shrink-0">
+                    <Plus className="w-4 h-4 mr-1" /> Add
+                  </Button>
+                </div>
+                {/* Show selected amenities not in presets */}
+                {selectedAmenities.filter(a => !currentAmenityPresets.includes(a)).length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {selectedAmenities.filter(a => !currentAmenityPresets.includes(a)).map(custom => (
+                      <span key={custom} className="px-3 py-1 bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 rounded-lg text-sm font-bold flex items-center gap-2">
+                        {custom}
+                        <X className="w-3 h-3 cursor-pointer hover:text-brand-900" onClick={() => toggleAmenity(custom)} />
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </section>
+
+          {/* Availability */}
+          <section className="space-y-6">
+            <h3 className="text-xl font-bold flex items-center gap-2 font-heading dark:text-white">
+              <CalendarIcon className="w-5 h-5 text-brand-600" />
+              Availability Management
+            </h3>
+            <Card className="p-8 border-none shadow-sm space-y-6 rounded-[2rem] dark:bg-slate-900">
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Start Date</label>
+                  <Input type="date" value={availability.startDate} onChange={(e) => setAvailability(prev => ({...prev, startDate: e.target.value}))} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">End Date</label>
+                  <Input type="date" value={availability.endDate} onChange={(e) => setAvailability(prev => ({...prev, endDate: e.target.value}))} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Daily Capacity / Slots</label>
+                  <Input type="number" min="1" value={availability.capacity} onChange={(e) => setAvailability(prev => ({...prev, capacity: e.target.value}))} />
                 </div>
               </div>
             </Card>
           </section>
 
-          {/* Media */}
+          {/* Media — Multi-image */}
           <section className="space-y-6">
             <h3 className="text-xl font-bold flex items-center gap-2 font-heading dark:text-white">
               <Image className="w-5 h-5 text-brand-600" />
@@ -159,21 +305,29 @@ export default function AddService() {
             </h3>
             <Card className="p-8 border-none shadow-sm space-y-6 rounded-[2rem] dark:bg-slate-900">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Primary Image URL</label>
-                <Input name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://images.unsplash.com/..." />
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Upload Images (Max 5)</label>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer"
+                />
               </div>
+              
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4">
-                {formData.image_url ? (
-                  <div className="aspect-square rounded-[2rem] overflow-hidden relative group">
-                    <img src={formData.image_url} className="w-full h-full object-cover" alt="Preview" />
-                    <button type="button" onClick={() => setFormData(prev => ({...prev, image_url: ''}))} className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur rounded-full text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                {imagePreviews.map((url, idx) => (
+                  <div key={idx} className="aspect-square rounded-[2rem] overflow-hidden relative group">
+                    <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                    <button type="button" onClick={() => removeImage(idx)} className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur rounded-full text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                ) : (
-                  <div className="aspect-square rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <Plus className="w-8 h-8 text-slate-300 mb-2" />
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Add Image</span>
+                ))}
+                {imagePreviews.length === 0 && (
+                  <div className="aspect-square rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-8 text-center bg-slate-50 dark:bg-slate-800/50">
+                    <Image className="w-8 h-8 text-slate-300 mb-2" />
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">No Images</span>
                   </div>
                 )}
               </div>

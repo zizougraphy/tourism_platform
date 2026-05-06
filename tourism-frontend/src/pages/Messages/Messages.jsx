@@ -89,10 +89,10 @@ const Messages = () => {
     if (!newMessage.trim() || !selectedChatId) return;
 
     try {
-      const res = await api.sendMessage({ receiver_id: selectedChatId, content: newMessage });
+      const res = await api.sendMessage({ receiver_id: Number(selectedChatId), content: newMessage });
       const newMsg = res.data.data;
       
-      setMessages(prev => [...prev, newMsg]);
+      setMessages(prev => [...prev, { ...newMsg, created_at: newMsg.sent_at || newMsg.created_at }]);
       setNewMessage('');
       
       // Update inbox with latest message
@@ -100,7 +100,7 @@ const Messages = () => {
         const existing = prev.find(c => Number(c.partner_id) === Number(selectedChatId));
         if (existing) {
           return [
-            { ...existing, content: newMsg.content, created_at: newMsg.sent_at },
+            { ...existing, content: newMsg.content, created_at: newMsg.sent_at || newMsg.created_at },
             ...prev.filter(c => Number(c.partner_id) !== Number(selectedChatId))
           ];
         } else {
@@ -108,7 +108,7 @@ const Messages = () => {
             partner_id: selectedChatId,
             partner_name: activeChat?.partner_name || 'User',
             content: newMsg.content,
-            created_at: newMsg.sent_at
+            created_at: newMsg.sent_at || newMsg.created_at
           }, ...prev];
         }
       });
@@ -116,6 +116,7 @@ const Messages = () => {
       console.error(err);
     }
   };
+
 
   const activeChat = inbox.find(c => Number(c.partner_id) === Number(selectedChatId));
 

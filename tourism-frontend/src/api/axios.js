@@ -3,7 +3,6 @@ import axios from 'axios';
 // ── Axios instance 
 const API = axios.create({
   baseURL: 'http://localhost:3000/api',
-  headers: { 'Content-Type': 'application/json' },
 });
 
 // ── Request interceptor — attach JWT token
@@ -31,9 +30,10 @@ API.interceptors.response.use(
 );
 
 // ── Auth 
-export const register = (data) => API.post('/auth/register', data);
-export const login    = (data) => API.post('/auth/login', data);
-export const getMe    = ()     => API.get('/auth/me');
+export const register      = (data) => API.post('/auth/register', data);
+export const login         = (data) => API.post('/auth/login', data);
+export const getMe         = ()     => API.get('/auth/me');
+export const updateProfile = (data) => API.put('/auth/profile', data);
 
 // ── Cities 
 export const getCities   = (params)   => API.get('/cities', { params });
@@ -42,6 +42,7 @@ export const getCityById = (id) => API.get(`/cities/${id}`);
 // ── Services 
 export const getServices    = (params) => API.get('/services', { params });
 export const getServiceById = (id)     => API.get(`/services/${id}`);
+export const getServiceAvailability = (id) => API.get(`/services/${id}/availability`);
 
 // ── Bookings 
 export const createBooking  = (data) => API.post('/bookings', data);
@@ -74,6 +75,12 @@ export const getProviderServices = ()          => API.get('/provider/services');
 export const createService      = (data)      => API.post('/provider/services', data);
 export const updateService      = (id, data)  => API.put(`/provider/services/${id}`, data);
 export const deleteService      = (id)        => API.delete(`/provider/services/${id}`);
+
+// ── Provider — Availability
+export const getProviderAvailability  = (serviceId) => API.get(`/provider/availability/${serviceId}`);
+export const setProviderAvailability  = (data)      => API.post('/provider/availability', data);
+export const setBulkAvailability      = (data)      => API.post('/provider/availability/bulk', data);
+export const deleteProviderAvailability = (id)      => API.delete(`/provider/availability/${id}`);
 
 // ── Admin – Core
 export const getAdminStats       = ()               => API.get('/admin/stats');

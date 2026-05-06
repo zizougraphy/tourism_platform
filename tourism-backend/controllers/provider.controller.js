@@ -36,17 +36,28 @@ const getMyServices = asyncHandler(async (req, res) => {
 // ─── POST /api/provider/services ─────────────────────────────────────────────
 const createService = asyncHandler(async (req, res) => {
   const provider = await getProvider(req.user.id, res);
-  const { name, description, category, price, city_id, image_url } = req.body;
+  const { name, description, category, price, city_id, image_url, amenities, location_address } = req.body;
 
   if (!name || !category || !price || !city_id) {
     res.status(400);
     throw new Error('name, category, price, and city_id are required');
   }
 
+  // Support multi-image: image_url can be passed or we use req.files
+  let validImages = [];
+  if (req.files && req.files.length > 0) {
+    validImages = req.files.map(f => `/uploads/${f.filename}`);
+  } else if (image_url) {
+    validImages = Array.isArray(image_url) ? image_url : image_url.split(',');
+  }
+  const imagesValue = validImages.length > 0 ? validImages.join(',') : null;
+  
+  const amenitiesValue = amenities ? (typeof amenities === 'string' ? amenities : JSON.stringify(amenities)) : null;
+
   const [result] = await db.query(
-    `INSERT INTO services (provider_id, name, description, category, price, city_id, images)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [provider.id, name, description || null, category, price, city_id, image_url || null]
+    `INSERT INTO services (provider_id, name, description, category, price, city_id, images, amenities, location_address, is_available)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+    [provider.id, name, description || null, category, price, city_id, imagesValue, amenitiesValue, location_address || null]
   );
 
   const [service] = await db.query(
@@ -61,7 +72,7 @@ const createService = asyncHandler(async (req, res) => {
 const updateService = asyncHandler(async (req, res) => {
   const provider  = await getProvider(req.user.id, res);
   const { id }    = req.params;
-  const { name, description, category, price, city_id, image_url, is_available } = req.body;
+  const { name, description, category, price, city_id, image_url, is_available, amenities, location_address } = req.body;
 
   // Make sure the service belongs to this provider
   const [rows] = await db.query(
@@ -78,13 +89,24 @@ const updateService = asyncHandler(async (req, res) => {
   const fields = [];
   const params = [];
 
-  if (name         !== undefined) { fields.push('name = ?');         params.push(name); }
-  if (description  !== undefined) { fields.push('description = ?');  params.push(description); }
-  if (category     !== undefined) { fields.push('category = ?');     params.push(category); }
-  if (price        !== undefined) { fields.push('price = ?');        params.push(price); }
-  if (city_id      !== undefined) { fields.push('city_id = ?');      params.push(city_id); }
-  if (image_url    !== undefined) { fields.push('images = ?');       params.push(image_url); }
-  if (is_available !== undefined) { fields.push('is_available = ?'); params.push(is_available ? 1 : 0); }
+  let validImages = [];
+  if (req.files && req.files.length > 0) {
+    validImages = req.files.map(f => `/uploads/${f.filename}`);
+  } else if (image_url) {
+    validImages = Array.isArray(image_url) ? image_url : image_url.split(',');
+  }
+  const imagesValue = validImages.length > 0 ? validImages.join(',') : undefined;
+
+  if (name             !== undefined) { fields.push('name = ?');             params.push(name); }
+  if (description      !== undefined) { fields.push('description = ?');      params.push(description); }
+  if (category         !== undefined) { fields.push('category = ?');         params.push(category); }
+  if (price            !== undefined) { fields.push('price = ?');            params.push(price); }
+  if (city_id          !== undefined) { fields.push('city_id = ?');          params.push(city_id); }
+  if (imagesValue      !== undefined) { fields.push('images = ?');           params.push(imagesValue); }
+  if (is_available     !== undefined) { fields.push('is_available = ?');     params.push(is_available ? 1 : 0); }
+  if (amenities        !== undefined) { fields.push('amenities = ?');        params.push(typeof amenities === 'string' ? amenities : JSON.stringify(amenities)); }
+  if (location_address !== undefined) { fields.push('location_address = ?'); params.push(location_address); }
+
 
   if (!fields.length) {
     res.status(400);

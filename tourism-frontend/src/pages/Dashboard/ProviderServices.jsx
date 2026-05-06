@@ -98,7 +98,13 @@ export default function ProviderServices() {
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-5">
                           <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-sm shrink-0 bg-slate-100 dark:bg-slate-800">
-                            <img src={service.images || service.image_url || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=200'} className="w-full h-full object-cover" alt="" />
+                            {(() => {
+                              const imgString = service.images || service.image_url;
+                              const primaryImage = imgString ? imgString.split(',')[0] : 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=200';
+                              return (
+                                <img src={primaryImage} className="w-full h-full object-cover" alt="" />
+                              );
+                            })()}
                           </div>
                           <div>
                             <h4 className="font-bold text-slate-900 dark:text-white text-base mb-1 font-heading">{service.name}</h4>

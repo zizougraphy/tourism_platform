@@ -187,6 +187,7 @@ const Services = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {services.map((service, i) => {
                   const favorite = isFavorite(service.id);
+                  const primaryImage = service.image_url ? service.image_url.split(',')[0] : 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=800';
                   return (
                     <motion.div
                       key={service.id}
@@ -197,7 +198,7 @@ const Services = () => {
                       <Card className="h-full border-none shadow-md hover:shadow-xl group flex flex-col">
                         <Link to={`/services/${service.id}`} className="block relative aspect-video overflow-hidden shrink-0">
                           <img 
-                            src={service.image_url || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=800'} 
+                            src={primaryImage} 
                             alt={service.name}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />

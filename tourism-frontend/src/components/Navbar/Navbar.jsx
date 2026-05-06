@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User as UserIcon, Heart, Calendar, LogOut, LayoutDashboard, Sun, Moon, Shield } from 'lucide-react';
+import { Menu, X, User as UserIcon, Heart, Calendar, LogOut, LayoutDashboard, Sun, Moon, Shield, MessageSquare } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -107,7 +107,7 @@ const Navbar = () => {
             </>
           ) : (
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-1 pl-3 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                 id="user-menu-button"
@@ -138,7 +138,7 @@ const Navbar = () => {
                         </div>
                         <div className="text-sm font-bold truncate text-slate-700 dark:text-slate-200">{user?.email}</div>
                       </div>
-                      
+
                       {user?.role === 'admin' && (
                         <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 transition-colors">
                           <Shield className="w-4 h-4" />
@@ -157,6 +157,11 @@ const Navbar = () => {
                         <UserIcon className="w-4 h-4 text-brand-500" />
                         <span className="font-medium">My Profile</span>
                       </Link>
+                      <Link to="/messages" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors">
+                        <MessageSquare className="w-4 h-4 text-brand-500" />
+                        <span className="font-medium">My Messages</span>
+                      </Link>
+
                       {user?.role === 'tourist' && (
                         <>
                           <Link to="/bookings" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors">
@@ -169,10 +174,10 @@ const Navbar = () => {
                           </Link>
                         </>
                       )}
-                      
+
                       <div className="h-px bg-slate-50 dark:bg-slate-700 my-1" />
-                      
-                      <button 
+
+                      <button
                         onClick={() => {
                           logout();
                           setShowUserMenu(false);

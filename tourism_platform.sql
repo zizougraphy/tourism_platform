@@ -74,8 +74,8 @@ CREATE TABLE `cities` (
 LOCK TABLES `cities` WRITE;
 /*!40000 ALTER TABLE `cities` DISABLE KEYS */;
 INSERT INTO `cities` VALUES
-  (1,'Constantine','Algeria','Constantine, the City of Bridges, is a stunning dramatic destination perched on a plateau with deep gorges and suspended bridges.','Semi-arid, cool winters','https://images.unsplash.com/photo-1596468138838-9e56f599992f?q=80&w=2070',36.365,6.6147),
-  (2,'Algiers','Algeria','Algiers, the capital, blends Mediterranean beauty with Ottoman and French architectural heritage along its iconic white-washed Casbah.','Mediterranean, mild','https://images.unsplash.com/photo-1605147544388-75b8e9069695?q=80&w=2070',36.7538,3.0588),
+  (1,'Constantine','Algeria','Constantine, the City of Bridges, is a stunning dramatic destination perched on a plateau with deep gorges and suspended bridges.','Semi-arid, cool winters','https://p2.piqsels.com/preview/726/398/472/algeria-algiers-arches-architecture.jpg',36.365,6.6147),
+  (2,'Algiers','Algeria','Algiers, the capital, blends Mediterranean beauty with Ottoman and French architectural heritage along its iconic white-washed Casbah.','Mediterranean, mild','https://c4.wallpaperflare.com/wallpaper/1012/546/537/algeria-nature-wallpaper-preview.jpg',36.7538,3.0588),
   (3,'Oran','Algeria','Oran, the Radiant City, is famous for its vibrant culture, raï music scene, and stunning coastal views from Fort Santa Cruz.','Hot summers, mild winters','https://images.unsplash.com/photo-1589330273594-fade1ee91647?q=80&w=2070',35.6969,-0.6331),
   (4,'Annaba','Algeria','Annaba, known for its pristine beaches and the historic Hippo Regius ruins where Saint Augustine once lived.','Mediterranean, warm','https://images.unsplash.com/photo-1544984243-ec57ea16fe25?q=80&w=2070',36.9,7.7667),
   (5,'Tipaza','Algeria','A coastal treasure featuring Roman ruins and crystal clear Mediterranean waters, a UNESCO World Heritage Site.','Warm & Sunny','https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=2070',36.5899,2.4483),

@@ -4,18 +4,25 @@ const { asyncHandler } = require('../middleware/error.middleware');
 // ─── POST /api/bookings ───────────────────────────────────────────────────────
 // Tourist creates a booking. Status starts as 'pending'.
 const createBooking = asyncHandler(async (req, res) => {
-  const { service_id, check_in_date, check_out_date, guests } = req.body;
+  const { service_id, check_in_date, check_out_date, guests, booking_time, party_size, notes } = req.body;
   const tourist_id = req.user.id;
+  const userRole   = req.user.role;
+
+  // ── RBAC: Only tourists can create bookings ──
+  if (userRole === 'admin') {
+    res.status(403);
+    throw new Error('Admins cannot create bookings');
+  }
 
   // Validate required fields
-  if (!service_id || !check_in_date || !check_out_date) {
+  if (!service_id || !check_in_date) {
     res.status(400);
-    throw new Error('service_id, check_in_date and check_out_date are required');
+    throw new Error('service_id and check_in_date are required');
   }
 
   // Make sure the service exists and is active
   const [service] = await db.query(
-    'SELECT id, price FROM services WHERE id = ? AND is_available = 1',
+    'SELECT id, price, provider_id, category FROM services WHERE id = ? AND is_available = 1',
     [service_id]
   );
 
@@ -24,10 +31,19 @@ const createBooking = asyncHandler(async (req, res) => {
     throw new Error('Service not found');
   }
 
+  // ── RBAC: Provider cannot book their own service ──
+  if (service[0].provider_id === tourist_id) {
+    res.status(403);
+    throw new Error('You cannot book your own service');
+  }
+
+  // For non-hotel categories check_out_date is optional (use check_in_date as fallback)
+  const checkOut = check_out_date || check_in_date;
+
   const [result] = await db.query(
-    `INSERT INTO bookings (tourist_id, service_id, check_in_date, check_out_date, status, total_price, guests)
-     VALUES (?, ?, ?, ?, 'pending', ?, ?)`,
-    [tourist_id, service_id, check_in_date, check_out_date, service[0].price, guests || 1]
+    `INSERT INTO bookings (tourist_id, service_id, check_in_date, check_out_date, status, total_price, guests, booking_time, party_size, notes)
+     VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)`,
+    [tourist_id, service_id, check_in_date, checkOut, service[0].price, guests || 1, booking_time || null, party_size || null, notes || null]
   );
 
   // Fetch the newly created booking to return it in the response
@@ -83,10 +99,13 @@ const getBookings = asyncHandler(async (req, res) => {
 // ─── PATCH /api/bookings/:id/cancel ──────────────────────────────────────────
 const cancelBooking = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { id: user_id } = req.user;
+  const { id: user_id, role } = req.user;
 
   const [booking] = await db.query(
-    'SELECT * FROM bookings WHERE id = ?',
+    `SELECT b.*, s.provider_id 
+     FROM bookings b
+     LEFT JOIN services s ON s.id = b.service_id
+     WHERE b.id = ?`,
     [id]
   );
 
@@ -97,12 +116,19 @@ const cancelBooking = asyncHandler(async (req, res) => {
 
   const b = booking[0];
 
-  if (b.tourist_id !== user_id) {
-    res.status(403);
-    throw new Error('Not authorised to cancel this booking');
+  if (role === 'service_provider') {
+    if (b.provider_id !== user_id) {
+      res.status(403);
+      throw new Error('Not authorised to cancel this booking');
+    }
+  } else {
+    if (b.tourist_id !== user_id) {
+      res.status(403);
+      throw new Error('Not authorised to cancel this booking');
+    }
   }
 
-  if (b.status !== 'pending') {
+  if (b.status !== 'pending' && b.status !== 'confirmed') {
     res.status(400);
     throw new Error(`Cannot cancel a booking with status '${b.status}'`);
   }

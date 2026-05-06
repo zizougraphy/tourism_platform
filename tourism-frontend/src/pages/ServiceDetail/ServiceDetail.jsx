@@ -4,7 +4,8 @@ import { motion } from 'motion/react';
 import { 
   Star, MapPin, Share2, Heart, Check, Users, 
   Calendar as CalendarIcon, Info, MessageCircle,
-  Wifi, Coffee, Utensils, Waves, Car, Camera, ArrowLeft, Send
+  Wifi, Coffee, Utensils, Waves, Car, Camera, ArrowLeft, Send,
+  Clock, Ticket, UtensilsCrossed, BedDouble, Building
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -16,6 +17,40 @@ import { DatePicker } from '../../components/ui/DatePicker';
 import { GuestSelector } from '../../components/ui/GuestSelector';
 import { format } from 'date-fns';
 
+// ─── Category-specific booking config ─────────────────────────────────────────
+const CATEGORY_CONFIG = {
+  hotel: {
+    priceLabel: '/ night',
+    icon: BedDouble,
+    bookingLabel: 'Reserve Room',
+    fields: ['dateRange', 'guests'],
+  },
+  restaurant: {
+    priceLabel: '/ person',
+    icon: UtensilsCrossed,
+    bookingLabel: 'Reserve Table',
+    fields: ['date', 'time', 'partySize'],
+  },
+  activity: {
+    priceLabel: '/ ticket',
+    icon: Ticket,
+    bookingLabel: 'Book Activity',
+    fields: ['date', 'tickets'],
+  },
+  guide: {
+    priceLabel: '/ person',
+    icon: Ticket,
+    bookingLabel: 'Book Tour',
+    fields: ['date', 'tickets'],
+  },
+  transport: {
+    priceLabel: '/ trip',
+    icon: Car,
+    bookingLabel: 'Book Ride',
+    fields: ['date', 'time'],
+  },
+};
+
 export default function ServiceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,7 +60,12 @@ export default function ServiceDetail() {
   
   // Booking state
   const [dateRange, setDateRange] = useState({ from: undefined, to: undefined });
+  const [singleDate, setSingleDate] = useState({ from: undefined, to: undefined });
   const [guests, setGuests] = useState({ adults: 1, children: 0 });
+  const [bookingTime, setBookingTime] = useState('19:00');
+  const [partySize, setPartySize] = useState(2);
+  const [ticketCount, setTicketCount] = useState(1);
+  const [bookingNotes, setBookingNotes] = useState('');
   const [bookingMsg, setBookingMsg] = useState('');
   
   // Review state
@@ -53,22 +93,71 @@ export default function ServiceDetail() {
     fetchServiceData();
   }, [id]);
 
+  const category = service?.category || 'hotel';
+  const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.hotel;
+
+  // ── Can this user book? ──
+  const isProvider = user?.role === 'service_provider';
+  const isAdmin = user?.role === 'admin';
+  const isOwnService = isProvider && user?.id === service?.provider_id;
+  const canBook = isAuthenticated && !isAdmin && !isOwnService;
+
   const handleBooking = async () => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    if (!dateRange?.from || !dateRange?.to) {
-      setBookingMsg('Please select dates');
+
+    if (isAdmin) {
+      setBookingMsg('Admins cannot create bookings');
       return;
     }
+    if (isOwnService) {
+      setBookingMsg('You cannot book your own service');
+      return;
+    }
+
+    // Build booking payload based on category
+    const payload = { service_id: service.id };
+
+    if (category === 'hotel') {
+      if (!dateRange?.from || !dateRange?.to) {
+        setBookingMsg('Please select check-in and check-out dates');
+        return;
+      }
+      payload.check_in_date = format(dateRange.from, 'yyyy-MM-dd');
+      payload.check_out_date = format(dateRange.to, 'yyyy-MM-dd');
+      payload.guests = guests.adults + guests.children;
+    } else if (category === 'restaurant') {
+      if (!singleDate?.from) {
+        setBookingMsg('Please select a reservation date');
+        return;
+      }
+      payload.check_in_date = format(singleDate.from, 'yyyy-MM-dd');
+      payload.booking_time = bookingTime;
+      payload.party_size = partySize;
+      payload.guests = partySize;
+    } else {
+      // activity, guide, transport
+      if (!singleDate?.from) {
+        setBookingMsg('Please select a date');
+        return;
+      }
+      payload.check_in_date = format(singleDate.from, 'yyyy-MM-dd');
+      if (config.fields.includes('time')) {
+        payload.booking_time = bookingTime;
+      }
+      if (config.fields.includes('tickets')) {
+        payload.guests = ticketCount;
+      }
+    }
+
+    if (bookingNotes.trim()) {
+      payload.notes = bookingNotes;
+    }
+
     try {
-      await api.createBooking({ 
-        service_id: service.id, 
-        check_in_date: format(dateRange.from, 'yyyy-MM-dd'), 
-        check_out_date: format(dateRange.to, 'yyyy-MM-dd'),
-        guests: guests.adults + guests.children
-      });
+      await api.createBooking(payload);
       setBookingMsg('Booking confirmed!');
       setTimeout(() => navigate('/bookings'), 2000);
     } catch (err) {
@@ -117,8 +206,123 @@ export default function ServiceDetail() {
   const favorite = isFavorite(service.id);
   const amenityIcons = {
     'Pool': Waves, 'Spa': Coffee, 'Free WiFi': Wifi, 'Breakfast Included': Utensils, 'Ocean View': Camera, 'Valet Parking': Car,
+    'WiFi': Wifi, 'Breakfast': Utensils, 'Gym': Users, 'Parking': Car, 'Beach Access': Waves,
   };
-  const amenitiesList = service.amenities || ['Free WiFi', 'Breakfast Included', 'Pool', 'Spa', 'Ocean View', 'Valet Parking'].slice(0, 4);
+  
+  // Parse amenities from JSON or use defaults
+  let amenitiesList;
+  try {
+    amenitiesList = service.amenities ? JSON.parse(service.amenities) : null;
+  } catch {
+    amenitiesList = null;
+  }
+  if (!amenitiesList || !amenitiesList.length) {
+    amenitiesList = ['Free WiFi', 'Breakfast Included', 'Pool', 'Spa'].slice(0, 4);
+  }
+
+  // ── Booking Sidebar Renderer ──
+  const renderBookingFields = () => {
+    switch (category) {
+      case 'hotel':
+        return (
+          <div className="space-y-4">
+            <div className="p-1 rounded-[1.5rem] bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 flex flex-col gap-1">
+              <DatePicker date={dateRange} setDate={setDateRange} placeholder="Select dates" align="right" />
+            </div>
+            <div className="p-1 rounded-[1.5rem] bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 flex flex-col gap-1">
+              <GuestSelector guests={guests} setGuests={setGuests} align="right" />
+            </div>
+          </div>
+        );
+
+      case 'restaurant':
+        return (
+          <div className="space-y-4">
+            <div className="p-1 rounded-[1.5rem] bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
+              <DatePicker date={singleDate} setDate={setSingleDate} placeholder="Reservation date" align="right" mode="single" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-brand-500" /> Reservation Time
+              </label>
+              <Input 
+                type="time" 
+                value={bookingTime} 
+                onChange={(e) => setBookingTime(e.target.value)} 
+                className="h-12 rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                <Users className="w-4 h-4 text-brand-500" /> Party Size
+              </label>
+              <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-600">
+                <button type="button" onClick={() => setPartySize(Math.max(1, partySize - 1))} className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-sm text-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">−</button>
+                <span className="text-lg font-bold dark:text-white flex-grow text-center">{partySize} {partySize === 1 ? 'Guest' : 'Guests'}</span>
+                <button type="button" onClick={() => setPartySize(partySize + 1)} className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-sm text-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">+</button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'activity':
+      case 'guide':
+        return (
+          <div className="space-y-4">
+            <div className="p-1 rounded-[1.5rem] bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
+              <DatePicker date={singleDate} setDate={setSingleDate} placeholder="Select date" align="right" mode="single" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                <Ticket className="w-4 h-4 text-brand-500" /> {category === 'guide' ? 'Group Size' : 'Tickets'}
+              </label>
+              <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-600">
+                <button type="button" onClick={() => setTicketCount(Math.max(1, ticketCount - 1))} className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-sm text-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">−</button>
+                <span className="text-lg font-bold dark:text-white flex-grow text-center">{ticketCount}</span>
+                <button type="button" onClick={() => setTicketCount(ticketCount + 1)} className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-sm text-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">+</button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'transport':
+        return (
+          <div className="space-y-4">
+            <div className="p-1 rounded-[1.5rem] bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
+              <DatePicker date={singleDate} setDate={setSingleDate} placeholder="Travel date" align="right" mode="single" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-brand-500" /> Pickup Time
+              </label>
+              <Input 
+                type="time" 
+                value={bookingTime} 
+                onChange={(e) => setBookingTime(e.target.value)} 
+                className="h-12 rounded-xl"
+              />
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div className="space-y-4">
+            <div className="p-1 rounded-[1.5rem] bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
+              <DatePicker date={singleDate} setDate={setSingleDate} placeholder="Select date" align="right" mode="single" />
+            </div>
+          </div>
+        );
+    }
+  };
+
+  // ── Determine button label ──
+  const getBookingButtonLabel = () => {
+    if (!isAuthenticated) return 'Login to Book';
+    if (isAdmin) return 'Admins Cannot Book';
+    if (isOwnService) return 'Your Own Service';
+    return config.bookingLabel;
+  };
 
   return (
     <div className="pt-24 pb-24 min-h-screen dark:bg-slate-950">
@@ -132,14 +336,18 @@ export default function ServiceDetail() {
       <section className="px-6 mb-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-[300px] md:h-[500px]">
           <div className="md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden relative group">
-            <img src={service.image_url || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=1200'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={service.name} />
+            <img src={service.image_url ? service.image_url.split(',')[0] : 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=1200'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={service.name} />
           </div>
           {/* Using same image for gallery if secondary ones are missing */}
-          {[1, 2, 3].map((i) => (
-            <div key={i} className={`hidden md:block rounded-3xl overflow-hidden relative group bg-slate-100 dark:bg-slate-800 ${i === 3 ? 'md:col-span-2' : ''}`}>
-              <img src={service.image_url || `https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=800`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80" alt={`Gallery ${i}`} />
-            </div>
-          ))}
+          {[1, 2, 3].map((i) => {
+            const images = service.image_url ? service.image_url.split(',') : [];
+            const src = images[i] || images[0] || `https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=800`;
+            return (
+              <div key={i} className={`hidden md:block rounded-3xl overflow-hidden relative group bg-slate-100 dark:bg-slate-800 ${i === 3 ? 'md:col-span-2' : ''}`}>
+                <img src={src} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80" alt={`Gallery ${i}`} />
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -173,6 +381,10 @@ export default function ServiceDetail() {
             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium pb-8 border-b border-slate-100 dark:border-slate-700">
               <MapPin className="w-5 h-5 text-brand-500" />
               <span>{service.city_name || 'Global Destination'}</span>
+              {service.location_address && (
+                <span className="text-slate-300 dark:text-slate-600 mx-1">·</span>
+              )}
+              {service.location_address && <span>{service.location_address}</span>}
             </div>
           </div>
 
@@ -183,6 +395,26 @@ export default function ServiceDetail() {
               {service.description || 'Experience luxury and comfort in our meticulously designed spaces.'}
             </p>
           </section>
+
+          {/* Amenities */}
+          {amenitiesList.length > 0 && (
+            <section>
+              <h3 className="text-2xl font-bold mb-6 font-heading dark:text-white">
+                {category === 'restaurant' ? 'Features' : category === 'activity' || category === 'guide' ? 'Includes' : 'Amenities'}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {amenitiesList.map((amenity, i) => {
+                  const IconComp = amenityIcons[amenity] || Check;
+                  return (
+                    <div key={i} className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
+                      <IconComp className="w-5 h-5 text-brand-500 shrink-0" />
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{amenity}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           {/* Reviews */}
           <section className="space-y-8">
@@ -246,24 +478,33 @@ export default function ServiceDetail() {
           </section>
         </div>
 
-        {/* Booking Sidebar */}
+        {/* Booking Sidebar — DYNAMIC */}
         <aside>
           <div className="sticky top-28">
             <Card className="p-8 border-none shadow-2xl space-y-8 rounded-[2.5rem] !overflow-visible">
               <div className="flex justify-between items-end">
                 <div>
                   <span className="text-3xl font-bold dark:text-white">${service.price}</span>
-                  <span className="text-slate-400 font-medium"> / night</span>
+                  <span className="text-slate-400 font-medium"> {config.priceLabel}</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-brand-50 dark:bg-brand-900/30 px-3 py-1 rounded-full">
+                  <config.icon className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                  <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">{category}</span>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="p-1 rounded-[1.5rem] bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 flex flex-col gap-1">
-                  <DatePicker date={dateRange} setDate={setDateRange} placeholder="Select dates" align="right" />
-                </div>
-                <div className="p-1 rounded-[1.5rem] bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 flex flex-col gap-1">
-                  <GuestSelector guests={guests} setGuests={setGuests} align="right" />
-                </div>
+              {renderBookingFields()}
+
+              {/* Optional notes */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Special Requests</label>
+                <textarea
+                  value={bookingNotes}
+                  onChange={(e) => setBookingNotes(e.target.value)}
+                  placeholder="Any special requirements..."
+                  className="w-full min-h-[60px] p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 text-sm outline-none focus:ring-2 focus:ring-brand-500 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 resize-none"
+                  rows={2}
+                />
               </div>
 
               {bookingMsg && (
@@ -272,8 +513,13 @@ export default function ServiceDetail() {
                 </div>
               )}
 
-              <Button size="lg" className="w-full h-16 text-lg rounded-2xl" onClick={handleBooking}>
-                {isAuthenticated ? 'Reserve Now' : 'Login to Book'}
+              <Button 
+                size="lg" 
+                className="w-full h-16 text-lg rounded-2xl" 
+                onClick={handleBooking}
+                disabled={isAdmin || isOwnService}
+              >
+                {getBookingButtonLabel()}
               </Button>
               
               <div className="flex items-center justify-center gap-2 text-brand-600 dark:text-brand-400 font-bold text-sm cursor-pointer hover:underline" onClick={handleContact}>

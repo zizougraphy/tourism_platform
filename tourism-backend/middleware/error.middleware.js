@@ -2,8 +2,8 @@ const errorHandler = (err, req, res, next) => {
   console.error(`[ERROR] ${req.method} ${req.originalUrl} —`, err.message);
   // eg. [ERROR] GET /api/users — User not found
 
-
-  const status  = err.statusCode || 500;
+  // When controllers do res.status(4xx) before throwing, statusCode is set on res
+  const status  = (res.statusCode && res.statusCode !== 200) ? res.statusCode : (err.statusCode || 500);
   const message = err.message    || 'Internal server error';
 
   res.status(status).json({

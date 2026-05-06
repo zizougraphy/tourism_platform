@@ -97,7 +97,7 @@ const login = asyncHandler(async (req, res) => {
 // GET /api/auth/me  (protected)
 const getMe = asyncHandler(async (req, res) => {
   const [rows] = await db.query(
-    'SELECT id, name, email, phone, role, created_at FROM users WHERE id = ?',
+    'SELECT id, name, email, phone, role, profile_photo, bio, travel_preferences, created_at FROM users WHERE id = ?',
     [req.user.id]
   );
   if (!rows.length) return res.status(404).json({ message: 'User not found' });
@@ -105,4 +105,44 @@ const getMe = asyncHandler(async (req, res) => {
   res.json({ success: true, user: rows[0] });
 });
 
-module.exports = { register, login, getMe };
+// PUT /api/auth/profile  (protected)
+const updateProfile = asyncHandler(async (req, res) => {
+  const { name, phone, bio, travel_preferences } = req.body;
+  let profile_photo;
+  
+  if (req.file) {
+    profile_photo = `/uploads/${req.file.filename}`;
+  } else if (req.body.profile_photo !== undefined) {
+    profile_photo = req.body.profile_photo;
+  }
+
+  const userId = req.user.id;
+
+  const fields = [];
+  const params = [];
+
+  if (name             !== undefined) { fields.push('name = ?');              params.push(name); }
+  if (phone            !== undefined) { fields.push('phone = ?');             params.push(phone); }
+  if (bio              !== undefined) { fields.push('bio = ?');               params.push(bio); }
+  if (travel_preferences !== undefined) { fields.push('travel_preferences = ?'); params.push(typeof travel_preferences === 'string' ? travel_preferences : JSON.stringify(travel_preferences)); }
+  if (profile_photo    !== undefined) { fields.push('profile_photo = ?');     params.push(profile_photo); }
+
+
+  if (!fields.length) {
+    res.status(400);
+    throw new Error('No fields to update');
+  }
+
+  params.push(userId);
+  await db.query(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, params);
+
+  // Return updated user
+  const [rows] = await db.query(
+    'SELECT id, name, email, phone, role, profile_photo, bio, travel_preferences, created_at FROM users WHERE id = ?',
+    [userId]
+  );
+
+  res.json({ success: true, user: rows[0] });
+});
+
+module.exports = { register, login, getMe, updateProfile };

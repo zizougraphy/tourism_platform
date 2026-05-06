@@ -140,6 +140,23 @@ export default function ProviderBookings() {
                               Confirm
                             </Button>
                           )}
+                          {(bk.status === 'pending' || bk.status === 'confirmed') && (
+                            <Button 
+                              onClick={async () => {
+                                try {
+                                  await api.cancelBooking(bk.id);
+                                  fetchBookings();
+                                } catch(e) {
+                                  alert('Failed to cancel');
+                                }
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="border-rose-200 dark:border-rose-800 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 font-bold text-xs px-4"
+                            >
+                              Cancel
+                            </Button>
+                          )}
                           <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">
                             <MoreVertical className="w-4 h-4" />
                           </Button>

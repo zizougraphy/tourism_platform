@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Calendar, Clock, MessageSquare, ExternalLink, RefreshCcw } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, MessageSquare, ExternalLink, RefreshCcw } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -28,7 +28,9 @@ export default function Bookings() {
     try { 
       await api.cancelBooking(id); 
       setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'cancelled' } : b)); 
-    } catch {}
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to cancel booking');
+    }
   };
 
   const statusColors = {
@@ -81,11 +83,17 @@ export default function Bookings() {
               >
                 <Card className="p-0 border-none shadow-sm hover:shadow-xl transition-shadow duration-500 overflow-hidden flex flex-col md:flex-row bg-white dark:bg-slate-800 rounded-[2rem]">
                   <div className="w-full md:w-72 h-56 md:h-auto overflow-hidden relative shrink-0">
-                    <img 
-                      src={booking.service_image || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=800'} 
-                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
-                      alt={booking.service_name} 
-                    />
+                    {(() => {
+                      const imgString = booking.service_image;
+                      const primaryImage = imgString ? imgString.split(',')[0] : 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=800';
+                      return (
+                        <img 
+                          src={primaryImage} 
+                          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
+                          alt={booking.service_name} 
+                        />
+                      );
+                    })()}
                     <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm backdrop-blur-md ${statusColors[booking.status] || statusColors.pending}`}>
                       {booking.status}
                     </div>
@@ -98,7 +106,7 @@ export default function Bookings() {
                           <h3 className="text-2xl font-bold mb-3 font-heading text-slate-900 dark:text-white">{booking.service_name || 'Premium Service'}</h3>
                           <div className="flex flex-wrap gap-6 text-sm text-slate-500 dark:text-slate-400 font-medium">
                             <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-700/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-600">
-                              <Calendar className="w-4 h-4 text-brand-500 shrink-0" />
+                              <CalendarIcon className="w-4 h-4 text-brand-500 shrink-0" />
                               <span>{booking.check_in_date || booking.created_at ? new Date(booking.check_in_date || booking.created_at).toLocaleDateString() : 'N/A'}</span>
                             </div>
                             <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-700/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-600">
@@ -151,7 +159,12 @@ export default function Bookings() {
                             Cancel
                           </Button>
                         )}
-                        <Button variant="secondary" size="sm" className="flex-1 sm:flex-none">Manage</Button>
+                        {booking.check_out_date && booking.check_in_date && (
+                          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-600 text-sm font-medium text-slate-500 dark:text-slate-400">
+                            <CalendarIcon className="w-3 h-3 text-brand-500" />
+                            {new Date(booking.check_in_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} → {new Date(booking.check_out_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -162,7 +175,7 @@ export default function Bookings() {
         ) : (
           <div className="py-24 text-center bg-white dark:bg-slate-800 rounded-[3rem] border border-slate-100 dark:border-slate-700 shadow-sm">
             <div className="inline-flex p-6 bg-slate-50 dark:bg-slate-700 rounded-full mb-6">
-              <Calendar className="w-12 h-12 text-slate-400" />
+              <CalendarIcon className="w-12 h-12 text-slate-400" />
             </div>
             <h3 className="text-2xl font-bold mb-3 font-heading dark:text-white">No bookings found</h3>
             <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-8">

@@ -12,3 +12,9 @@ scene.splinecode
 
 # OS
 .DS_Store
+
+# Nested repo
+tourism_platform/
+
+# Uploads
+tourism-backend/uploads/
