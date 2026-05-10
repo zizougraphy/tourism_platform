@@ -33,7 +33,7 @@ export default function Home() {
       <section className="relative h-[95vh] flex items-center justify-center pt-20 px-6 bg-slate-900">
         <div className="absolute inset-0 z-0">
           <img
-            src="./dist/assets/travel-bg3.jpg"
+            src="/assets/travel-bg3.jpg"
             className="w-full h-full object-cover brightness-[0.6]"
             alt="Horizon Landscape"
           />
@@ -132,7 +132,7 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {cities.slice(0, 4).map((dest, i) => (
+              {cities.slice(0, 8).map((dest, i) => (
                 <motion.div
                   key={dest.id}
                   initial={{ opacity: 0, y: 20 }}

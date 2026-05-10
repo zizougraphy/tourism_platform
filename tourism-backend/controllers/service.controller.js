@@ -117,8 +117,7 @@ const getServiceById = asyncHandler(async (req, res) => {
        c.name  AS city_name,
        u.name  AS provider_name,
        s.provider_id,
-       s.amenities,
-       s.location_address,
+       s.location AS location_address,
        s.created_at
      FROM services s
      LEFT JOIN cities c ON c.id = s.city_id
