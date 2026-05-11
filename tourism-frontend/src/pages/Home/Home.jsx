@@ -33,7 +33,7 @@ export default function Home() {
       <section className="relative h-[95vh] flex items-center justify-center pt-20 px-6 bg-slate-900">
         <div className="absolute inset-0 z-0">
           <img
-            src="/assets/travel-bg3.jpg"
+            src="./public/assets/travel-bg3.jpg"
             className="w-full h-full object-cover brightness-[0.6]"
             alt="Horizon Landscape"
           />
